@@ -507,8 +507,11 @@ typedef struct tebot_update {
 	tebot_poll_answer_t *poll_answer;
 	tebot_chat_member_updated_t *my_chat_member;
 	tebot_chat_member_updated_t *chat_member;
-
 } tebot_update_t;
+
+typedef struct tebot_result_updated {
+	tebot_update_t **update;
+} tebot_result_updated_t;
 
 typedef struct tebot_handler {
 	CURL *curl;
@@ -517,12 +520,11 @@ typedef struct tebot_handler {
 	char *token;
 	char *url_get;
 	char *current_buf;
-	int offset;
-
-	/* types */
-	tebot_user_t user;
-
+	long long int offset;
+	tebot_result_updated_t *res;
+	int size_result;
 } tebot_handler_t;
+
 
 typedef enum tebot_show_debug {
 	TEBOT_DEBUG_NOT_SHOW = 0,
@@ -537,6 +539,7 @@ typedef enum tebot_log_level {
 
 tebot_handler_t *tebot_init ( const char *token, const tebot_show_debug_enum show_debug, const char *log_file );
 tebot_user_t *tebot_method_get_me ( tebot_handler_t *handler );
+tebot_result_updated_t *tebot_method_get_updates ( tebot_handler_t *handler, const int limit, const int timeout, char **allowed_updates );
 
 #ifdef __cplusplus
 }
