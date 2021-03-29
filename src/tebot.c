@@ -371,14 +371,409 @@ void *strdup_printf ( char *fmt, ... ) {
 }
 
 void handler_template ( tebot_handler_t *h, void *data, json_object *obj ) {
-	tebot_template_t temp* = ( tebot_chat_t * ) data;
+	tebot_template_t *obj = ( tebot_template_t * ) data;
 
 	json_type type = json_object_get_type ( obj );
 
 	if ( type == json_type_object ) {
 		struct data_of_types dot[] = {
-			{ "id", (void **) &temp->id },
-			{ "title", (void **) &temp->title }
+			{ "id", (void **) &obj->id },
+		};
+
+		const int size = sizeof ( dot ) / sizeof ( struct data_of_types );
+
+		for ( int i = 0; i < size; i++ ) {
+			parse_current_object ( h, obj, dot, i );
+		}
+
+		return;
+	}
+
+	if ( type == json_type_array ) {
+
+		return;
+	}
+}
+
+void handler_venue ( tebot_handler_t *h, void *data, json_object *obj ) {
+	tebot_venue_t *obj = ( tebot_venue_t * ) data;
+
+	json_type type = json_object_get_type ( obj );
+
+	if ( type == json_type_object ) {
+		struct data_of_types dot[] = {
+			{ "location", (void **) &obj->location, sizeof ( tebot_location_t ), handler_location },
+			{ "title", (void **) &obj->title },
+			{ "address", (void **) &obj->address },
+			{ "foursquare_id", (void **) &obj->foursquare_id },
+			{ "foursquare_type", (void **) &obj->foursquare_type },
+			{ "google_place_id", (void **) &obj->google_place_id },
+			{ "google_place_type", (void **) &obj->google_place_type }
+		};
+
+		const int size = sizeof ( dot ) / sizeof ( struct data_of_types );
+
+		for ( int i = 0; i < size; i++ ) {
+			parse_current_object ( h, obj, dot, i );
+		}
+
+		return;
+	}
+
+	if ( type == json_type_array ) {
+
+		return;
+	}
+}
+
+void handler_poll_option ( tebot_handler_t *h, void *data, json_object *obj ) {
+	tebot_poll_option_t *obj = ( tebot_poll_option_t * ) data;
+
+	json_type type = json_object_get_type ( obj );
+
+	if ( type == json_type_object ) {
+		struct data_of_types dot[] = {
+			{ "text", (void **) &obj->text },
+			{ "voter_count", (void **) &obj->voter_count }
+		};
+
+		const int size = sizeof ( dot ) / sizeof ( struct data_of_types );
+
+		for ( int i = 0; i < size; i++ ) {
+			parse_current_object ( h, obj, dot, i );
+		}
+
+		return;
+	}
+
+	if ( type == json_type_array ) {
+
+		return;
+	}
+}
+
+void handler_poll ( tebot_handler_t *h, void *data, json_object *obj ) {
+	tebot_poll_t *obj = ( tebot_poll_t * ) data;
+
+	json_type type = json_object_get_type ( obj );
+
+	if ( type == json_type_object ) {
+		struct data_of_types dot[] = {
+			{ "id", (void **) &obj->id },
+			{ "question", (void **) &obj->question },
+			{ "options", (void **) &obj->options, sizeof ( tebot_poll_options_t ), handler_poll_options },
+			{ "total_voter_count", (void **) &obj->total_voter_count },
+			{ "is_closed", (void **) &obj->is_closed },
+			{ "is_anonymous", (void **) &obj->is_anonymous },
+			{ "type", (void **) &obj->type },
+			{ "allows_multiple_answers", (void **) &obj->allows_multiple_answers },
+			{ "correct_option_id", (void **) &obj->correct_option_id },
+			{ "explanation", (void **) &obj->explanation },
+			{ "explanation_entities", (void **) &obj->explanation_entities, sizeof ( tebot_message_entity_t ),
+				handler_message_entity },
+			{ "open_period", (void **) &obj->open_period },
+			{ "close_date", (void **) &obj->close_date }
+		};
+
+		const int size = sizeof ( dot ) / sizeof ( struct data_of_types );
+
+		for ( int i = 0; i < size; i++ ) {
+			parse_current_object ( h, obj, dot, i );
+		}
+
+		return;
+	}
+
+	if ( type == json_type_array ) {
+
+		return;
+	}
+}
+
+void handler_game ( tebot_handler_t *h, void *data, json_object *obj ) {
+	tebot_game_t *obj = ( tebot_game_t * ) data;
+
+	json_type type = json_object_get_type ( obj );
+
+	if ( type == json_type_object ) {
+		struct data_of_types dot[] = {
+			{ "title", (void **) &obj->title },
+			{ "description", (void **) &obj->description },
+			{ "photo", (void **) &obj->photo, sizeof ( tebot_photo_size_t ), handler_photo_size },
+			{ "text", (void **) &obj->text },
+			{ "text_entities", (void **) &obj->text_entities, sizeof ( tebot_text_entities_t ), handler_text_entities },
+			{ "animation", (void **) &obj->animation, sizeof ( tebot_animation_t ), handler_animation }
+		};
+
+		const int size = sizeof ( dot ) / sizeof ( struct data_of_types );
+
+		for ( int i = 0; i < size; i++ ) {
+			parse_current_object ( h, obj, dot, i );
+		}
+
+		return;
+	}
+
+	if ( type == json_type_array ) {
+
+		return;
+	}
+}
+
+void handler_dice ( tebot_handler_t *h, void *data, json_object *obj ) {
+	tebot_dice_t *obj = ( tebot_dice_t * ) data;
+
+	json_type type = json_object_get_type ( obj );
+
+	if ( type == json_type_object ) {
+		struct data_of_types dot[] = {
+			{ "emoji", (void **) &obj->emoji },
+			{ "value", (void **) &obj->value }
+		};
+
+		const int size = sizeof ( dot ) / sizeof ( struct data_of_types );
+
+		for ( int i = 0; i < size; i++ ) {
+			parse_current_object ( h, obj, dot, i );
+		}
+
+		return;
+	}
+
+	if ( type == json_type_array ) {
+
+		return;
+	}
+}
+
+void handler_contact ( tebot_handler_t *h, void *data, json_object *obj ) {
+	tebot_contact_t *obj = ( tebot_contact_t * ) data;
+
+	json_type type = json_object_get_type ( obj );
+
+	if ( type == json_type_object ) {
+		struct data_of_types dot[] = {
+			{ "phone_number", (void **) &obj->phone_number },
+			{ "first_name", (void **) &obj->first_name },
+			{ "last_name", (void **) &obj->last_name },
+			{ "user_id", (void **) &obj->user_id },
+			{ "vcard", (void **) &obj->vcard }
+		};
+
+		const int size = sizeof ( dot ) / sizeof ( struct data_of_types );
+
+		for ( int i = 0; i < size; i++ ) {
+			parse_current_object ( h, obj, dot, i );
+		}
+
+		return;
+	}
+
+	if ( type == json_type_array ) {
+
+		return;
+	}
+}
+
+void handler_voice ( tebot_handler_t *h, void *data, json_object *obj ) {
+	tebot_voice_t *obj = ( tebot_voice_t * ) data;
+
+	json_type type = json_object_get_type ( obj );
+
+	if ( type == json_type_object ) {
+		struct data_of_types dot[] = {
+			{ "file_id", (void **) &obj->file_id },
+			{ "file_unique_id", (void **) &obj->file_unique_id },
+			{ "duration", (void **) &obj->duration },
+			{ "mime_type", (void **) &obj->mime_type },
+			{ "file_size", (void **) &obj->file_size }
+		};
+
+		const int size = sizeof ( dot ) / sizeof ( struct data_of_types );
+
+		for ( int i = 0; i < size; i++ ) {
+			parse_current_object ( h, obj, dot, i );
+		}
+
+		return;
+	}
+
+	if ( type == json_type_array ) {
+
+		return;
+	}
+}
+void handler_video_note ( tebot_handler_t *h, void *data, json_object *obj ) {
+	tebot_video_note_t *obj = ( tebot_video_note_t * ) data;
+
+	json_type type = json_object_get_type ( obj );
+
+	if ( type == json_type_object ) {
+		struct data_of_types dot[] = {
+			{ "file_id", (void **) &obj->file_id },
+			{ "file_unique_id", (void **) &obj->file_unique_id },
+			{ "length", (void **) &obj->length },
+			{ "duration", (void **) &obj->duration },
+			{ "thumb", (void **) &obj->thumb, sizeof ( tebot_photo_size_t ), handler_photo_size },
+			{ "file_name", (void **) &obj->file_name },
+			{ "file_size", (void **) &obj->file_size }
+		};
+
+		const int size = sizeof ( dot ) / sizeof ( struct data_of_types );
+
+		for ( int i = 0; i < size; i++ ) {
+			parse_current_object ( h, obj, dot, i );
+		}
+
+		return;
+	}
+
+	if ( type == json_type_array ) {
+
+		return;
+	}
+}
+void handler_video ( tebot_handler_t *h, void *data, json_object *obj ) {
+	tebot_video_t *obj = ( tebot_video_t * ) data;
+
+	json_type type = json_object_get_type ( obj );
+
+	if ( type == json_type_object ) {
+		struct data_of_types dot[] = {
+			{ "file_id", (void **) &obj->file_id },
+			{ "file_unique_id", (void **) &obj->file_unique_id },
+			{ "width", (void **) &obj->width },
+			{ "height", (void **) &obj->height },
+			{ "duration", (void **) &obj->duration },
+			{ "thumb", (void **) &obj->thumb, sizeof ( tebot_photo_size_t ), handler_photo_size },
+			{ "file_name", (void **) &obj->file_name },
+			{ "mime_type", (void **) &obj->mime_type },
+			{ "file_size", (void **) &obj->file_size }
+		};
+
+		const int size = sizeof ( dot ) / sizeof ( struct data_of_types );
+
+		for ( int i = 0; i < size; i++ ) {
+			parse_current_object ( h, obj, dot, i );
+		}
+
+		return;
+	}
+
+	if ( type == json_type_array ) {
+
+		return;
+	}
+}
+
+void handler_mask_position ( tebot_handler_t *h, void *data, json_object *obj ) {
+	tebot_mask_position_t *obj = ( tebot_mask_position_t * ) data;
+
+	json_type type = json_object_get_type ( obj );
+
+	if ( type == json_type_object ) {
+		struct data_of_types dot[] = {
+			{ "point", (void **) &obj->point },
+			{ "x_shift", (void **) &obj->x_shift },
+			{ "y_shift", (void **) &obj->y_shift },
+			{ "scale", (void **) &obj->scale }
+		};
+
+		const int size = sizeof ( dot ) / sizeof ( struct data_of_types );
+
+		for ( int i = 0; i < size; i++ ) {
+			parse_current_object ( h, obj, dot, i );
+		}
+
+		return;
+	}
+
+	if ( type == json_type_array ) {
+
+		return;
+	}
+}
+
+void handler_sticker ( tebot_handler_t *h, void *data, json_object *obj ) {
+	tebot_sticker_t temp* = ( tebot_sticker_t * ) data;
+
+	json_type type = json_object_get_type ( obj );
+
+	if ( type == json_type_object ) {
+		struct data_of_types dot[] = {
+			{ "file_id", (void **) &sticker->file_id },
+			{ "file_unique_id", (void **) &sticker->file_unique_id },
+			{ "width", (void **) &sticker->width },
+			{ "height", (void **) &sticker->height },
+			{ "is_animated", (void **) &sticker->is_animated },
+			{ "thumb", (void **) &sticker->thumb, sizeof ( tebot_photo_size_t ), handler_photo_size },
+			{ "emoji", (void **) &sticker->emoji },
+			{ "set_name", (void **) &sticker->set_name },
+			{ "mask_position", (void **) &sticker->mask_position, sizeof ( tebot_mask_position_t ), handler_mask_position },
+			{ "file_size", (void **) &sticker->file_size }
+		};
+
+		const int size = sizeof ( dot ) / sizeof ( struct data_of_types );
+
+		for ( int i = 0; i < size; i++ ) {
+			parse_current_object ( h, obj, dot, i );
+		}
+
+		return;
+	}
+
+	if ( type == json_type_array ) {
+
+		return;
+	}
+}
+
+void handler_document ( tebot_handler_t *h, void *data, json_object *obj ) {
+	tebot_document_t document* = ( tebot_document_t * ) data;
+
+	json_type type = json_object_get_type ( obj );
+
+	if ( type == json_type_object ) {
+		struct data_of_types dot[] = {
+			{ "file_id", (void **) &document->file_id },
+			{ "file_unique_id", (void **) &document->file_unique_id },
+			{ "thumb", (void **) &document->thumb, sizeof ( tebot_photo_size_t ), handler_photo_size },
+			{ "file_name", (void **) &document->file_name },
+			{ "mime_type", (void **) &document->mime_type },
+			{ "file_size", (void **) &document->file_size }
+		};
+
+		const int size = sizeof ( dot ) / sizeof ( struct data_of_types );
+
+		for ( int i = 0; i < size; i++ ) {
+			parse_current_object ( h, obj, dot, i );
+		}
+
+		return;
+	}
+
+	if ( type == json_type_array ) {
+
+		return;
+	}
+}
+
+void handler_audio ( tebot_handler_t *h, void *data, json_object *obj ) {
+	tebot_audio_t audio* = ( tebot_audio_t * ) data;
+
+	json_type type = json_object_get_type ( obj );
+
+	if ( type == json_type_object ) {
+		struct data_of_types dot[] = {
+			{ "file_id", (void **) &audio->file_id },
+			{ "file_unique_id", (void **) &audio->file_unique_id },
+			{ "duration", (void **) &audio->duration },
+			{ "performer", (void **) &audio->performer },
+			{ "title", (void **) &audio->title },
+			{ "file_name", (void **) &audio->file_name },
+			{ "mime_type", (void **) &audio->mime_type },
+			{ "file_size", (void **) &audio->file_size },
+			{ "thumb", (void **) &audio->thumb, sizeof ( tebot_photo_size_t ), handler_photo_size }
 		};
 
 		const int size = sizeof ( dot ) / sizeof ( struct data_of_types );
