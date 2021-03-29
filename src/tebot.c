@@ -370,6 +370,314 @@ void *strdup_printf ( char *fmt, ... ) {
 	return p;
 }
 
+void handler_template ( tebot_handler_t *h, void *data, json_object *obj ) {
+	tebot_template_t temp* = ( tebot_chat_t * ) data;
+
+	json_type type = json_object_get_type ( obj );
+
+	if ( type == json_type_object ) {
+		struct data_of_types dot[] = {
+			{ "id", (void **) &temp->id },
+			{ "title", (void **) &temp->title }
+		};
+
+		const int size = sizeof ( dot ) / sizeof ( struct data_of_types );
+
+		for ( int i = 0; i < size; i++ ) {
+			parse_current_object ( h, obj, dot, i );
+		}
+
+		return;
+	}
+
+	if ( type == json_type_array ) {
+
+		return;
+	}
+}
+void handler_photo_size ( tebot_handler_t *h, void *data, json_object *obj ) {
+	tebot_photo_size_t *photo_size = ( tebot_photo_size_t * ) data;
+
+	json_type type = json_object_get_type ( obj );
+
+	if ( type == json_type_object ) {
+		struct data_of_types dot[] = {
+			{ "file_id", (void **) &photo_size->file_id },
+			{ "file_unique_id", (void **) &photo_size->file_unique_id },
+			{ "width", (void **) &photo_size->width },
+			{ "height", (void **) &photo_size->height },
+			{ "file_size", (void **) &photo_size->file_size }
+		};
+
+		const int size = sizeof ( dot ) / sizeof ( struct data_of_types );
+
+		for ( int i = 0; i < size; i++ ) {
+			parse_current_object ( h, obj, dot, i );
+		}
+
+		return;
+	}
+
+	if ( type == json_type_array ) {
+
+		return;
+	}
+}
+
+void handler_animation ( tebot_handler_t *h, void *data, json_object *obj ) {
+	tebot_animation_t *animation = ( tebot_animation_t * ) data;
+
+	json_type type = json_object_get_type ( obj );
+
+	if ( type == json_type_object ) {
+		struct data_of_types dot[] = {
+			{ "file_id", (void **) &animation->file_id },
+			{ "file_unique_id", (void **) &animation->file_unique_id },
+			{ "width", (void **) &animation->width },
+			{ "height", (void **) &animation->height },
+			{ "duration", (void **) &animation->duration },
+			{ "thumb", (void **) &animation->thumb, sizeof ( tebot_photo_size_t ), handler_photo_size },
+			{ "file_name", (void **) &animation->file_name },
+			{ "mime_type", (void **) &animation->mime_type },
+			{ "file_size", (void **) &animation->file_size }
+		};
+
+		const int size = sizeof ( dot ) / sizeof ( struct data_of_types );
+
+		for ( int i = 0; i < size; i++ ) {
+			parse_current_object ( h, obj, dot, i );
+		}
+
+		return;
+	}
+
+	if ( type == json_type_array ) {
+
+		return;
+	}
+}
+
+void handler_message_entity ( tebot_handler_t *h, void *data, json_object *obj ) {
+	tebot_message_entity_t message_entity* = ( tebot_message_entity_t * ) data;
+
+	json_type type = json_object_get_type ( obj );
+
+	if ( type == json_type_object ) {
+		struct data_of_types dot[] = {
+			{ "type", (void **) &message_entity->type },
+			{ "offset", (void **) &message_entity->offset },
+			{ "length" (void **) &message_entity->length },
+			{ "url", (void **) &message_entity->url },
+			{ "user", (void **) &message_entity->user, sizeof ( tebot_user_t ), handler_user },
+			{ "language", (void **) &message_entity->language }
+		};
+
+		const int size = sizeof ( dot ) / sizeof ( struct data_of_types );
+
+		for ( int i = 0; i < size; i++ ) {
+			parse_current_object ( h, obj, dot, i );
+		}
+
+		return;
+	}
+
+	if ( type == json_type_array ) {
+
+		return;
+	}
+}
+
+void handler_location ( tebot_handler_t *h, void *data, json_object *obj ) {
+	tebot_location_t location* = ( tebot_location_t * ) data;
+
+	json_type type = json_object_get_type ( obj );
+
+	if ( type == json_type_object ) {
+		struct data_of_types dot[] = {
+			{ "longitude", (void **) &location->longitude },
+			{ "latitude", (void **) &location->latitude },
+			{ "horizontal_accuracy", (void **) &location->horizontal_accuracy },
+			{ "live_period", (void **) &location->live_period },
+			{ "heading", (void **) &location->heading },
+			{ "proximity_alert_radius", (void **) &location->proximity_alert_radius }
+		};
+
+		const int size = sizeof ( dot ) / sizeof ( struct data_of_types );
+
+		for ( int i = 0; i < size; i++ ) {
+			parse_current_object ( h, obj, dot, i );
+		}
+
+		return;
+	}
+
+	if ( type == json_type_array ) {
+
+		return;
+	}
+}
+
+void handler_chat_location ( tebot_handler_t *h, void *data, json_object *obj ) {
+	tebot_chat_location_t *chat_location = ( tebot_chat_location_t * ) data;
+
+	json_type type = json_object_get_type ( obj );
+
+	if ( type == json_type_object ) {
+		struct data_of_types dot[] = {
+			{ "location", (void **) &chat_location->location, sizeof ( tebot_location_t ),
+		       			handler_location	},
+			{ "address", (void **) &chat_address }
+		};
+
+		const int size = sizeof ( dot ) / sizeof ( struct data_of_types );
+
+		for ( int i = 0; i < size; i++ ) {
+			parse_current_object ( h, obj, dot, i );
+		}
+
+		return;
+	}
+
+	if ( type == json_type_array ) {
+
+		return;
+	}
+}
+
+void handler_chat_permissions ( tebot_handler_t *h, void *data, json_object *obj ) {
+	tebot_template_t chat_permissions* = ( tebot_chat_t * ) data;
+
+	json_type type = json_object_get_type ( obj );
+
+	if ( type == json_type_object ) {
+		struct data_of_types dot[] = {
+			{ "can_send_messages", (void **) &chat_permissions->can_send_messages },
+			{ "can_send_media_messages", (void **) &chat_permissions->can_send_media_messages },
+			{ "can_send_polls", (void **) &chat_permissions->can_send_polls },
+			{ "can_add_web_page_previews", (void **) &chat_permissions->can_add_web_page_previews },
+			{ "can_change_info", (void **) &chat_permissions->can_change_info },
+			{ "can_invite_users", (void **) &chat_permissions->can_invite_users },
+			{ "can_pin_messages", (void **) &chat_permissions->can_pin_messages }
+		};
+
+		const int size = sizeof ( dot ) / sizeof ( struct data_of_types );
+
+		for ( int i = 0; i < size; i++ ) {
+			parse_current_object ( h, obj, dot, i );
+		}
+
+		return;
+	}
+
+	if ( type == json_type_array ) {
+
+		return;
+	}
+}
+
+void handler_chat_photo ( tebot_handler_t *h, void *data, json_object *obj ) {
+	tebot_template_t chat_photo* = ( tebot_chat_t * ) data;
+
+	json_type type = json_object_get_type ( obj );
+
+	if ( type == json_type_object ) {
+		struct data_of_types dot[] = {
+			{ "small_file_id", (void **) &chat_photo->small_file_id },
+			{ "small_file_unique_id", (void **) &chat_photo->small_file_unique_id },
+			{ "big_file_id", (void **) &chat_photo->big_file_id },
+			{ "big_file_unique_id", (void **) &chat_photo->big_file_unique_id }
+		};
+
+		const int size = sizeof ( dot ) / sizeof ( struct data_of_types );
+
+		for ( int i = 0; i < size; i++ ) {
+			parse_current_object ( h, obj, dot, i );
+		}
+
+		return;
+	}
+
+	if ( type == json_type_array ) {
+
+		return;
+	}
+}
+
+void handler_chat ( tebot_handler_t *h, void *data, json_object *obj ) {
+	tebot_chat_t chat* = ( tebot_chat_t * ) data;
+
+	json_type type = json_object_get_type ( obj );
+
+	if ( type == json_type_object ) {
+		struct data_of_types dot[] = {
+			{ "id", (void **) &chat->id },
+			{ "type", (void **) &chat->type },
+			{ "title", (void **) &chat->title },
+			{ "username", (void **) &chat->username },
+			{ "first_name", (void **) &chat->first_name },
+			{ "last_name", (void **) &chat->last_name },
+			{ "photo", (void **) &chat->photo, sizeof ( tebot_chat_photo_t ), handler_chat_photo },
+			{ "bio", (void **) &chat->bio },
+			{ "description", (void **) &chat->description },
+			{ "invite_link", (void **) &chat->invite_link },
+			{ "pinned_message", (void **) &chat->pinned_message, sizeof ( tebot_pinned_message_t ), handle_pinned_message },
+			{ "permissions", (void **) &chat->permissions, sizeof ( tebot_chat_permissions_t ), handle_chat_permissions },
+			{ "slow_mode_delay", (void **) &chat->slow_mode_delay },
+			{ "message_auto_delete_time", (void **) &chat->message_auto_delete_time },
+			{ "sticker_set_name", (void **) &chat->sticker_set_name },
+			{ "can_set_sticker_set", (void **) &chat->can_set_sticker_set },
+			{ "linked_chat_id", (void **) &chat->linked_chat_id },
+			{ "location", (void **) &chat->location, sizeof ( tebot_chat_location_t ), handle_chat_location }
+		};
+
+		const int size = sizeof ( dot ) / sizeof ( struct data_of_types );
+
+		for ( int i = 0; i < size; i++ ) {
+			parse_current_object ( h, obj, dot, i );
+		}
+
+		return;
+	}
+
+	if ( type == json_type_array ) {
+
+		return;
+	}
+}
+
+void handler_user ( tebot_handler_t *h, void *data, json_object *obj ) {
+	tebot_user_t user* = ( tebot_user_t * ) data;
+
+	json_type type = json_object_get_type ( obj );
+
+	if ( type == json_type_object ) {
+		struct data_of_types dot[] = {
+			{ "id", (void **) &user->id },
+			{ "is_bot", (void **) &user->is_bot },
+			{ "first_name", (void **) &user->first_name },
+			{ "last_name", (void **) &user->last_name },
+			{ "username", (void **) &user->username },
+			{ "language_code", (void **) &user->language_code },
+			{ "can_join_groups", (void **) &user->can_join_groups },
+			{ "can_read_all_group_messages", (void **) &user->can_read_all_group_messages },
+			{ "supports_inline_queries", (void **) &user->supports_inline_queries }
+		};
+
+		const int size = sizeof ( dot ) / sizeof ( struct data_of_types );
+
+		for ( int i = 0; i < size; i++ ) {
+			parse_current_object ( h, obj, dot, i );
+		}
+
+		return;
+	}
+
+	if ( type == json_type_array ) {
+
+		return;
+	}
+}
+
 void handler_message ( tebot_handler_t *h, void *data, json_object *obj ) {
 	tebot_message_t *msg = ( tebot_message_t * ) data;
 
@@ -459,6 +767,8 @@ void handler_message ( tebot_handler_t *h, void *data, json_object *obj ) {
 		return;
 	}
 }
+
+
 
 void handler_chat ( tebot_handler_t *h, void *data, json_object *obj ) {
 	printf ( "handler_chat\n" );
