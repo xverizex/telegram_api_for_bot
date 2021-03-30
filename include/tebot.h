@@ -517,6 +517,7 @@ typedef struct tebot_update {
 
 typedef struct tebot_result_updated {
 	tebot_update_t **update;
+	int size;
 } tebot_result_updated_t;
 
 typedef struct tebot_handler {
@@ -528,7 +529,6 @@ typedef struct tebot_handler {
 	char *current_buf;
 	long long int offset;
 	tebot_result_updated_t *res;
-	int size_result;
 } tebot_handler_t;
 
 

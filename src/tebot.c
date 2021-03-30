@@ -231,7 +231,6 @@ tebot_request_get_error:
 }
 
 void parse_current_object ( tebot_handler_t *h, json_object *json_result, struct data_of_types dot[], const int i ) {
-	printf ( "parse_current_object.\n" );
 	json_object *param = NULL;
 	json_object_iter iter;
 
@@ -272,7 +271,6 @@ void parse_current_object ( tebot_handler_t *h, json_object *json_result, struct
 }
 
 static int parse_data ( tebot_handler_t *h, char *data, struct data_of_types dot[], const int size, const int index_of_array ) {
-	printf ( "parse_data\n" );
 
 	json_object *root = NULL;
 	json_object *ok = NULL;
@@ -1858,7 +1856,6 @@ static void handler_chat_member_updated ( tebot_handler_t *h, void *data, json_o
 }
 
 tebot_result_updated_t *tebot_method_get_updates ( tebot_handler_t *h, const int limit, const int timeout, char **allowed_updates ) {
-	printf ( "get_updates\n" );
 
 	struct mimes mimes[3] = {
 		{ MIMES_TYPE_PARAM, strdup ( "limit" ), strdup_printf ( "%d", limit ) },
@@ -1908,7 +1905,7 @@ tebot_result_updated_t *tebot_method_get_updates ( tebot_handler_t *h, const int
 		if ( ret == -1 ) {
 			log_time ( LOG_LEVEL_NOTICE, h->log_file, h->show_debug, "failed to parse data: %s\n", data );
 		}
-		h->size_result++;
+		t->size++;
 		if ( ret == 1 ) break;
 	}
 
