@@ -2025,11 +2025,55 @@ void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id,
 		index++;
 	}
 
-	if ( reply_markup && type_reply_markup == INLINE_KEYBOARD_MARKUP ) {
-		mimes[index].type = MIMES_TYPE_ARRAY;
+	if ( reply_markup && type_of_reply_markup == INLINE_KEYBOARD_MARKUP ) {
+		mimes[index].type = MIMES_TYPE_PARAM;
 		mimes[index].name = strdup ( "reply_markup" );
-		mimes[index].array = calloc ( 1, sizeof ( void * ) );
-		mimes
+		json_object *root = json_object_new_object ( );
+		json_object *array = json_object_new_array ( );
+		json_object *root_array = json_object_new_array ( );
+		json_object_object_add ( root, "keyboard", root_array );
+		tebot_inline_keyboard_markup_t *m = ( tebot_inline_keyboard_markup_t * ) reply_markup;
+
+		for ( int i = 0; m->inline_keyboard[i] != NULL; i++ ) {
+			json_object *item = json_object_new_object ( );
+			json_object *item_ = NULL;
+			
+			if ( m->inline_keyboard[i]->text ) {
+				item_ = json_object_new_string ( m->inline_keyboard[i]->text );
+				json_object_object_add ( item, "text", item_ );
+			}
+
+			if ( m->inline_keyboard[i]->callback_data ) {
+				item_ = json_object_new_string ( m->inline_keyboard[i]->callback_data );
+				json_object_object_add ( item, "callback_data", item_ );
+			}
+
+			if ( m->inline_keyboard[i]->url ) {
+				item_ = json_object_new_string ( m->inline_keyboard[i]->url );
+				json_object_object_add ( item, "url", item_ );
+			}
+
+			if ( m->inline_keyboard[i]->switch_inline_query ) {
+				item_ = json_object_new_string ( m->inline_keyboard[i]->switch_inline_query );
+				json_object_object_add ( item, "switch_inline_query", item_ );
+			}
+
+			if ( m->inline_keyboard[i]->switch_inline_query_current_chat ) {
+				item_ = json_object_new_string ( m->inline_keyboard[i]->switch_inline_query_current_chat );
+				json_object_object_add ( item, "switch_inline_query_current_chat", item_ );
+			}
+
+			if ( m->inline_keyboard[i]->pay ) {
+				item_ = json_object_new_boolean ( 1 );
+				json_object_object_add ( item, "pay", item_ );
+			}
+
+			json_object_array_add ( array, item );
+		}
+		json_object_array_add ( root_array, array );
+		mimes[index].value = strdup ( json_object_to_json_string ( root ) );
+		index++;
+		json_object_put ( root );
 	}
 	
 
@@ -2048,4 +2092,14 @@ void tebot_free_update ( tebot_handler_t *h ) {
 	}
 
 	free ( h->for_free );
+}
+
+tebot_inline_keyboard_markup_t *tebot_init_inline_keyboard_markup ( const int size ) {
+	tebot_inline_keyboard_markup_t *markup = calloc ( 1, sizeof ( tebot_inline_keyboard_markup_t ) );
+	markup->inline_keyboard = calloc ( size + 1, sizeof ( void * ) );
+	for ( int i = 0; i < size; i++ ) {
+		markup->inline_keyboard[i] = calloc ( 1, sizeof ( tebot_inline_keyboard_button_t ) );
+	}
+
+	return markup;
 }

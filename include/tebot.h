@@ -571,6 +571,8 @@ void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id,
 
 void tebot_free_update ( tebot_handler_t *h );
 
+tebot_inline_keyboard_markup_t *tebot_init_inline_keyboard_markup ( const int size );
+
 #ifdef __cplusplus
 }
 #endif        // __cplusplus
