@@ -569,6 +569,18 @@ void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id,
 		int type_of_reply_markup   /* not realize */
 		);
 
+void tebot_method_send_document ( tebot_handler_t *h, long long int chat_id, 
+		char *document,
+		char *thumb,
+		char *caption,
+		char *parse_mode,
+		tebot_message_entity_t **caption_entities,
+		char disable_content_type_detection,
+		char disable_notification,
+		const long long int reply_to_message_id,
+		char allow_sending_without_reply,
+		void *reply_markup );
+
 void tebot_free_update ( tebot_handler_t *h );
 
 tebot_inline_keyboard_markup_t *tebot_init_inline_keyboard_markup ( const int size );

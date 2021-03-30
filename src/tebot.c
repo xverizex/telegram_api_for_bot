@@ -12,6 +12,7 @@
 
 #define MIMES_TYPE_PARAM                   0
 #define MIMES_TYPE_ARRAY                   1
+#define MIMES_TYPE_FILE                    2
 struct mimes {
 	int type;
 	char *name;
@@ -200,7 +201,11 @@ static unsigned char *tebot_request_get ( tebot_handler_t *h, const char *method
 			}
 
 			curl_mime_name ( part, mimes[i].name );
-			curl_mime_data ( part, mimes[i].value, CURL_ZERO_TERMINATED );
+			if ( mimes[i].type == MIMES_TYPE_FILE ) {
+				curl_mime_filedata ( part, mimes[i].value );
+			} else {
+				curl_mime_data ( part, mimes[i].value, CURL_ZERO_TERMINATED );
+			}
 		}
 	
 		curl_easy_setopt ( h->curl, CURLOPT_MIMEPOST, mime );
@@ -2106,8 +2111,6 @@ void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id,
 
 	char *data = tebot_request_get ( h, "sendMessage", mimes, index );
 
-	printf ( "%s\n", data );
-
 	for ( int i = 0; i < index; i++ ) {
 		free ( mimes[i].name );
 		free ( mimes[i].value );
@@ -2131,4 +2134,41 @@ tebot_inline_keyboard_markup_t *tebot_init_inline_keyboard_markup ( const int si
 	}
 
 	return markup;
+}
+
+void tebot_method_send_document ( tebot_handler_t *h, long long int chat_id, 
+		char *document,
+		char *thumb,
+		char *caption,
+		char *parse_mode,
+		tebot_message_entity_t **caption_entities,
+		char disable_content_type_detection,
+		char disable_notification,
+		const long long int reply_to_message_id,
+		char allow_sending_without_reply,
+		void *reply_markup ) {
+
+	struct mimes mimes[2];
+	int index = 0;
+
+	if ( chat_id >= 0 ) {
+		mimes[index].type = MIMES_TYPE_PARAM;
+		mimes[index].name = strdup ( "chat_id" );
+		mimes[index].value = strdup_printf ( "%d", chat_id );
+		index++;
+	}
+
+	if ( document ) {
+		mimes[index].type = MIMES_TYPE_FILE;
+		mimes[index].name = strdup ( "document" );
+		mimes[index].value = strdup_printf ( "%s", document );
+		index++;
+	}
+
+	char *data = tebot_request_get ( h, "sendDocument", mimes, index );
+
+	for ( int i = 0; i < index; i++ ) {
+		free ( mimes[i].name );
+		free ( mimes[i].value );
+	}
 }
