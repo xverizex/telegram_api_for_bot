@@ -9,7 +9,7 @@ supported functions:
 * getUpdates
 * sendMessage
 
-пока не реализовано освобождение памяти. видимо я всё усложнил и теперь надо думать как освобождать этот ужас. код не смотрите, плакать будете. )
+видимо я всё усложнил и теперь надо думать как освобождать этот ужас. код не смотрите, плакать будете. )
 
 example:
 ```
@@ -53,6 +53,8 @@ int main ( int argc, char **argv ) {
 
 			if ( upd->update[i]->update_id > 0 ) offset = upd->update[i]->update_id + 1;
 		}
+
+		tebot_free_update ( tebot_handler );
 		
 		sleep ( 1 );
 	}

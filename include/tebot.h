@@ -529,6 +529,8 @@ typedef struct tebot_handler {
 	char *current_buf;
 	long long int offset;
 	tebot_result_updated_t *res;
+	void **for_free;
+	int size_for_free;
 } tebot_handler_t;
 
 
@@ -560,6 +562,7 @@ void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id,
 		int type_of_reply_markup   /* not realize */
 		);
 
+void tebot_free_update ( tebot_handler_t *h );
 
 #ifdef __cplusplus
 }

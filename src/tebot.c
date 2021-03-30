@@ -244,10 +244,17 @@ void parse_current_object ( tebot_handler_t *h, json_object *json_result, struct
 		case json_type_null:
 			*dot[i].ptr = NULL;
 			break;
-		case json_type_object: 
+		case json_type_object: {
 			if ( dot[i].size <= 0 ) break;
 			*( dot[i].ptr ) = calloc ( 1, dot[i].size );
+			void **temp = realloc ( h->for_free, sizeof ( void * ) * h->size_for_free + 1 );
+			if ( temp ) {
+				h->for_free = temp;
+				h->for_free[h->size_for_free] = *( dot[i].ptr );
+				h->size_for_free++;
+			}
 			dot[i].set_links_for_object_and_get_data ( h, *dot[i].ptr, param );
+			}
 			break;
 		case json_type_boolean:
 			*( ( unsigned char * ) dot[i].ptr ) = 1;
@@ -262,6 +269,12 @@ void parse_current_object ( tebot_handler_t *h, json_object *json_result, struct
 			const char *str = json_object_get_string ( param );
 			const int length = strlen ( str );
 			*dot[i].ptr = ( char * ) calloc ( length + 1, 1 );
+			void **temp = realloc ( h->for_free, sizeof ( void * ) * h->size_for_free + 1 );
+			if ( temp ) {
+				h->for_free = temp;
+				h->for_free[h->size_for_free] = *( dot[i].ptr );
+				h->size_for_free++;
+			}
 			strncpy ( *dot[i].ptr, str, length );
 	 		}
 			break;
@@ -1858,6 +1871,9 @@ static void handler_chat_member_updated ( tebot_handler_t *h, void *data, json_o
 tebot_result_updated_t *tebot_method_get_updates ( tebot_handler_t *h, const long long int offset, const int limit, 
 		const int timeout, char **allowed_updates ) {
 
+	h->size_for_free = 0;
+	h->for_free = calloc ( 0, sizeof ( void * ) );
+
 	struct mimes mimes[4] = {
 		{ MIMES_TYPE_PARAM, strdup ( "offset" ), strdup_printf ( "%lld", offset ) },
 		{ MIMES_TYPE_PARAM, strdup ( "limit" ), strdup_printf ( "%d", limit ) },
@@ -1865,9 +1881,37 @@ tebot_result_updated_t *tebot_method_get_updates ( tebot_handler_t *h, const lon
 		{ MIMES_TYPE_ARRAY, strdup ( "allowed_updates" ), .array = allowed_updates }
 	};
 
+	void **temp = realloc ( h->for_free, sizeof ( void * ) * 7 );
+	if ( temp ) {
+		h->for_free = temp;
+		h->size_for_free = 7;
+
+		h->for_free[0] = mimes[0].name;
+		h->for_free[1] = mimes[0].value;
+		h->for_free[2] = mimes[1].name;
+		h->for_free[3] = mimes[1].value;
+		h->for_free[4] = mimes[2].name;
+		h->for_free[5] = mimes[2].value;
+		h->for_free[6] = mimes[3].name;
+	}
+
+
 	tebot_result_updated_t *t = ( tebot_result_updated_t * ) calloc ( 1, sizeof ( tebot_result_updated_t ) );
 	h->res = t;
+	temp = realloc ( h->for_free, sizeof ( void * ) * h->size_for_free + 1 );
+	if ( temp ) {
+		h->for_free = temp;
+		h->for_free[h->size_for_free] = t;
+		h->size_for_free++;
+	}
+
 	t->update = ( tebot_update_t ** ) calloc ( limit, sizeof ( tebot_update_t * ) );
+	temp = realloc ( h->for_free, sizeof ( void * ) * h->size_for_free + 1 );
+	if ( temp ) {
+		h->for_free = temp;
+		h->for_free[h->size_for_free] = t->update;
+		h->size_for_free++;
+	}
 
 	char *data = tebot_request_get ( h, "getUpdates", mimes, 4 );
 
@@ -1876,6 +1920,13 @@ tebot_result_updated_t *tebot_method_get_updates ( tebot_handler_t *h, const lon
 		if ( !t->update[i] ) {
 			log_time ( LOG_LEVEL_CRITICAL, h->log_file, h->show_debug, "failed to calloc update.\n" );
 			return NULL;
+		}
+
+		temp = realloc ( h->for_free, sizeof ( void * ) * h->size_for_free + 1 );
+		if ( temp ) {
+			h->for_free = temp;
+			h->for_free[h->size_for_free] = t->update[i];
+			h->size_for_free++;
 		}
 
 		struct data_of_types dot[] = {
@@ -1932,4 +1983,13 @@ void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id,
 	};
 
 	char *data = tebot_request_get ( h, "sendMessage", mimes, 2 );
+}
+
+void tebot_free_update ( tebot_handler_t *h ) {
+
+	for ( int i = 0; i < h->size_for_free; i++ ) {
+		free ( h->for_free [ i ] );
+	}
+
+	free ( h->for_free );
 }
