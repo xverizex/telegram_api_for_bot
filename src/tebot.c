@@ -2068,16 +2068,45 @@ void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id,
 				json_object_object_add ( item, "pay", item_ );
 			}
 
+			if ( m->inline_keyboard[i]->login_url ) {
+				json_object *login_url = json_object_new_object ( );
+
+				if ( m->inline_keyboard[i]->login_url->url ) {
+					item_ = json_object_new_string ( m->inline_keyboard[i]->login_url->url );
+					json_object_object_add ( login_url, "url", item_ );
+				}
+
+				if ( m->inline_keyboard[i]->login_url->forward_text ) {
+					item_ = json_object_new_string ( m->inline_keyboard[i]->login_url->forward_text );
+					json_object_object_add ( login_url, "forward_text", item_ );
+				}
+
+				if ( m->inline_keyboard[i]->login_url->bot_username ) {
+					item_ = json_object_new_string ( m->inline_keyboard[i]->login_url->bot_username );
+					json_object_object_add ( login_url, "bot_username", item_ );
+				}
+
+				if ( m->inline_keyboard[i]->login_url->request_write_access ) {
+					item_ = json_object_new_boolean ( m->inline_keyboard[i]->login_url->request_write_access );
+					json_object_object_add ( login_url, "request_write_access", item_ );
+				}
+
+				json_object_object_add ( item, "login_url", login_url );
+			}
+
 			json_object_array_add ( array, item );
 		}
 		json_object_array_add ( root_array, array );
 		mimes[index].value = strdup ( json_object_to_json_string ( root ) );
+		printf ( "%s\n", mimes[index].value );
 		index++;
 		json_object_put ( root );
 	}
 	
 
 	char *data = tebot_request_get ( h, "sendMessage", mimes, index );
+
+	printf ( "%s\n", data );
 
 	for ( int i = 0; i < index; i++ ) {
 		free ( mimes[i].name );
