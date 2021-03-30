@@ -1977,12 +1977,61 @@ void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id,
 		int type_of_reply_markup   /* not realize */
 		) {
 
-	struct mimes mimes[2] = {
-		{ MIMES_TYPE_PARAM, strdup ( "chat_id" ), strdup_printf ( "%lld", chat_id ) },
-		{ MIMES_TYPE_PARAM, strdup ( "text" ), strdup_printf ( "%s", text ) },
-	};
+	struct mimes mimes[9];
+	int index = 0;
 
-	char *data = tebot_request_get ( h, "sendMessage", mimes, 2 );
+	mimes[index].type = MIMES_TYPE_PARAM;
+	mimes[index].name = strdup ( "chat_id" );
+	mimes[index].value = strdup_printf ( "%lld", chat_id );
+	index++;
+
+	mimes[index].type = MIMES_TYPE_PARAM;
+	mimes[index].name = strdup ( "text" );
+	mimes[index].value = strdup_printf ( "%s", text );
+	index++;
+
+	if ( parse_mode ) {
+		mimes[index].type = MIMES_TYPE_PARAM;
+		mimes[index].name = strdup ( "parse_mode" );
+		mimes[index].value = strdup ( parse_mode );
+		index++;
+	}
+
+	if ( disable_web_page_preview > 0 ) {
+		mimes[index].type = MIMES_TYPE_PARAM;
+		mimes[index].name = strdup ( "disable_web_page_preview" );
+		mimes[index].value = strdup_printf ( "%d", disable_web_page_preview );
+		index++;
+	}
+	
+	if ( disable_notification > 0 ) {
+		mimes[index].type = MIMES_TYPE_PARAM;
+		mimes[index].name = strdup ( "disable_notification" );
+		mimes[index].value = strdup_printf ( "%d", disable_notification );
+		index++;
+	}
+
+	if ( reply_to_message_id >= 0 ) {
+		mimes[index].type = MIMES_TYPE_PARAM;
+		mimes[index].name = strdup ( "reply_to_message_id" );
+		mimes[index].value = strdup_printf ( "%lld", reply_to_message_id );
+		index++;
+	}
+
+	if ( allow_sending_without_reply > 0 ) {
+		mimes[index].type = MIMES_TYPE_PARAM;
+		mimes[index].name = strdup ( "allow_sending_without_reply" );
+		mimes[index].value = strdup_printf ( "%d", allow_sending_without_reply );
+		index++;
+	}
+	
+
+	char *data = tebot_request_get ( h, "sendMessage", mimes, index );
+
+	for ( int i = 0; i < index; i++ ) {
+		free ( mimes[i].name );
+		free ( mimes[i].value );
+	}
 }
 
 void tebot_free_update ( tebot_handler_t *h ) {
