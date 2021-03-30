@@ -566,7 +566,9 @@ void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id,
 		long long int reply_to_message_id,
 		char allow_sending_without_reply,
 		void *reply_markup,
-		int type_of_reply_markup   /* not realize */
+		int type_of_reply_markup,
+		int layout[],
+		int size_layout
 		);
 
 void tebot_method_send_document ( tebot_handler_t *h, long long int chat_id, 

@@ -1980,8 +1980,12 @@ void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id,
 		long long int reply_to_message_id,
 		char allow_sending_without_reply,
 		void *reply_markup,
-		int type_of_reply_markup   /* not realize */
+		int type_of_reply_markup,
+		int layout[],
+		int size_layout
 		) {
+
+	int l = 0;
 
 	struct mimes mimes[9];
 	int index = 0;
@@ -2039,6 +2043,7 @@ void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id,
 		json_object *root_array = json_object_new_array ( );
 		json_object_object_add ( root, "keyboard", root_array );
 		tebot_inline_keyboard_markup_t *m = ( tebot_inline_keyboard_markup_t * ) reply_markup;
+		int border = 0;
 
 		for ( int i = 0; m->inline_keyboard[i] != NULL; i++ ) {
 			json_object *item = json_object_new_object ( );
@@ -2100,11 +2105,22 @@ void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id,
 				json_object_object_add ( item, "login_url", login_url );
 			}
 
+			if ( layout && size_layout > 0 ) {
+
+				if ( l < size_layout && border == layout [ l ] ) {
+					json_object_array_add ( root_array, array );
+					array = json_object_new_array ( );
+					l++;
+					border = 0;
+				}
+			}
+
 			json_object_array_add ( array, item );
+
+			border++;
 		}
 		json_object_array_add ( root_array, array );
 		mimes[index].value = strdup ( json_object_to_json_string ( root ) );
-		printf ( "%s\n", mimes[index].value );
 		index++;
 		json_object_put ( root );
 	}
