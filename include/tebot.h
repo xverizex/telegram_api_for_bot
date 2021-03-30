@@ -54,7 +54,7 @@ typedef struct tebot_chat_photo {
 } tebot_chat_photo_t;
 
 
-typedef struct tebot_chat_permission {
+typedef struct tebot_chat_permissions {
 	char can_send_messages;
 	char can_send_media_messages;
 	char can_send_polls;
@@ -63,11 +63,17 @@ typedef struct tebot_chat_permission {
 	char can_change_info;
 	char can_invite_users;
 	char can_pin_messages;
-} tebot_chat_permission_t;
+} tebot_chat_permissions_t;
 
+#if 0
 typedef struct tebot_chat_location {
 	char *command;
 	char *description;
+} tebot_chat_location_t;
+#endif
+typedef struct tebot_chat_location {
+	tebot_location_t *location;
+	char *address;
 } tebot_chat_location_t;
 
 typedef struct tebot_message tebot_message_t;
@@ -84,7 +90,7 @@ typedef struct tebot_chat {
 	char *description;
 	char *invite_link;
 	tebot_message_t *pinned_message;
-	tebot_chat_permission_t *permissions;
+	tebot_chat_permissions_t *permissions;
 	long long int slow_mode_delay;
 	long long int message_auto_delete_time;
 	char *sticker_set_name;
@@ -354,7 +360,7 @@ typedef struct tebot_inline_keyboard_button {
 } tebot_inline_keyboard_button_t;
 
 typedef struct tebot_inline_keyboard_markup {
-	tebot_inline_keyboard_button_t **inine_keyboard;
+	tebot_inline_keyboard_button_t **inline_keyboard;
 } tebot_inline_keyboard_markup_t;
 
 typedef struct tebot_message {
