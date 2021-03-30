@@ -364,6 +364,7 @@ tebot_user_t *tebot_method_get_me ( tebot_handler_t *h ) {
 	if ( ret == -1 ) {
 		log_time ( LOG_LEVEL_NOTICE, h->log_file, h->show_debug, "failed to parse data: %s\n", data );
 	}
+	printf ( "%s\n", data );
 
 	return user;
 }
