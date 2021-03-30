@@ -2024,6 +2024,13 @@ void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id,
 		mimes[index].value = strdup_printf ( "%d", allow_sending_without_reply );
 		index++;
 	}
+
+	if ( reply_markup && type_reply_markup == INLINE_KEYBOARD_MARKUP ) {
+		mimes[index].type = MIMES_TYPE_ARRAY;
+		mimes[index].name = strdup ( "reply_markup" );
+		mimes[index].array = calloc ( 1, sizeof ( void * ) );
+		mimes
+	}
 	
 
 	char *data = tebot_request_get ( h, "sendMessage", mimes, index );

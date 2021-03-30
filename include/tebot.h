@@ -545,6 +545,13 @@ typedef enum tebot_log_level {
 	LOG_LEVEL_BAD_REQUEST
 } tebot_log_level_enum;
 
+typedef enum tebot_reply_markup {
+	INLINE_KEYBOARD_MARKUP,
+	REPLY_KEYBOARD_MARKUP,
+	REPLY_KEYBOARD_REMOVE,
+	FORCE_REPLY
+} tebot_reply_markup_enum;
+
 tebot_handler_t *tebot_init ( const char *token, const tebot_show_debug_enum show_debug, const char *log_file );
 tebot_user_t *tebot_method_get_me ( tebot_handler_t *handler );
 tebot_result_updated_t *tebot_method_get_updates ( tebot_handler_t *handler, const long long int offset,
