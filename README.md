@@ -11,67 +11,16 @@ supported functions:
 
 Код не смотрите, плакать будете. )
 
-Я думаю что всё усложнил. Теперь для каждого update для существующих данных выделяется память, только для тех, которые есть во входящих данных. Не знаю правильный ли это подход. Для long, double и bool не выделяется память, для строк и объектов выделяется. и так при каждом запросе.
+Я думаю что всё усложнил. Теперь для каждого update для существующих данных выделяется память, только для тех, которые есть во входящих данных. Не знаю правильный ли это подход. Для long, double и bool не выделяется память, для строк и объектов выделяется. и так при каждом запросе. в первом примере создаются inline кнопки, в layout указываются сколько кнопок будет распологаться в каждой строке.
 
 example:
 ```
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
 #include <tebot.h>
 
 char *token = "";
-
-int main ( int argc, char **argv ) {
-
-	tebot_handler_t *tebot_handler = tebot_init ( token, TEBOT_DEBUG_SHOW, NULL );
-
-	tebot_user_t *user = tebot_method_get_me ( tebot_handler );
-
-
-	long long int offset = 0;
-	while ( 1 ) {
-		tebot_result_updated_t *upd = tebot_method_get_updates ( tebot_handler, offset, 20, 0, NULL );
-		for ( int i = 0; i < upd->size; i++ ) {
-
-			if ( upd->update[i]->message ) {
-				printf ( "%s from %s\n",
-						upd->update[i]->message->text,
-						upd->update[i]->message->from->username
-				       );
-
-				tebot_method_send_message ( tebot_handler,
-						upd->update[i]->message->from->id,
-						upd->update[i]->message->text,
-						NULL,
-						NULL,
-						1,
-						0,
-						-1,
-						1,
-						NULL,
-						-1
-						);
-			}
-
-			if ( upd->update[i]->update_id > 0 ) offset = upd->update[i]->update_id + 1;
-		}
-
-		tebot_free_update ( tebot_handler );
-		
-		sleep ( 1 );
-	}
-}
-```
-
-вот как отправить кнопки.
-```
-#include <stdio.h>
-#include <unistd.h>
-#include <string.h>
-#include <stdlib.h>
-#include <tebot.h>
-
-char *token = "your token";
 
 int main ( int argc, char **argv ) {
 	
@@ -79,13 +28,25 @@ int main ( int argc, char **argv ) {
 
 	long long int offset = 0;
 
-	tebot_inline_keyboard_markup_t *m = tebot_init_inline_keyboard_markup ( 3 );
+	tebot_inline_keyboard_markup_t *m = tebot_init_inline_keyboard_markup ( 8 );
 	m->inline_keyboard[0]->text = strdup ( "hello" );
-	m->inline_keyboard[0]->callback_data = strdup ( "button_netto" );
+	m->inline_keyboard[0]->callback_data = strdup ( "button_hello" );
 	m->inline_keyboard[1]->text = strdup ( "netto" );
-	m->inline_keyboard[1]->callback_data = strdup ( "button_hello" );
-	m->inline_keyboard[2]->text = strdup ( "hillo" );
-	m->inline_keyboard[2]->callback_data = strdup ( "button_hillo" );
+	m->inline_keyboard[1]->callback_data = strdup ( "button_netto" );
+	m->inline_keyboard[2]->text = strdup ( "hello" );
+	m->inline_keyboard[2]->callback_data = strdup ( "button_hello" );
+	m->inline_keyboard[3]->text = strdup ( "netto" );
+	m->inline_keyboard[3]->callback_data = strdup ( "button_netto" );
+	m->inline_keyboard[4]->text = strdup ( "hello" );
+	m->inline_keyboard[4]->callback_data = strdup ( "button_hello" );
+	m->inline_keyboard[5]->text = strdup ( "netto" );
+	m->inline_keyboard[5]->callback_data = strdup ( "button_netto" );
+	m->inline_keyboard[6]->text = strdup ( "netto" );
+	m->inline_keyboard[6]->callback_data = strdup ( "button_netto" );
+	m->inline_keyboard[7]->text = strdup ( "netto" );
+	m->inline_keyboard[7]->callback_data = strdup ( "button_netto" );
+
+	int layout[] = { 3, 2, 3 };
 
 	while ( 1 ) {
 		tebot_result_updated_t *t = tebot_method_get_updates ( h, offset, 20, 0, NULL );
@@ -105,7 +66,9 @@ int main ( int argc, char **argv ) {
 								-1,
 								-1,
 								m,
-								INLINE_KEYBOARD_MARKUP
+								INLINE_KEYBOARD_MARKUP,
+								layout,
+								3	
 								);
 
 					}
@@ -123,3 +86,4 @@ int main ( int argc, char **argv ) {
 
 }
 ```
+
