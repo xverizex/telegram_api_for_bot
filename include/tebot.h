@@ -499,7 +499,7 @@ typedef struct tebot_chat_member_updated {
 } tebot_chat_member_updated_t;
 
 typedef struct tebot_update {
-	int update_id;
+	long long int update_id;
 	tebot_message_t *message;
 	tebot_message_t *edited_message;
 	tebot_message_t *channel_post;
@@ -545,7 +545,21 @@ typedef enum tebot_log_level {
 
 tebot_handler_t *tebot_init ( const char *token, const tebot_show_debug_enum show_debug, const char *log_file );
 tebot_user_t *tebot_method_get_me ( tebot_handler_t *handler );
-tebot_result_updated_t *tebot_method_get_updates ( tebot_handler_t *handler, const int limit, const int timeout, char **allowed_updates );
+tebot_result_updated_t *tebot_method_get_updates ( tebot_handler_t *handler, const long long int offset,
+		const int limit, const int timeout, char **allowed_updates );
+
+void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id, 
+		char *text,
+		char *parse_mode,
+		tebot_message_entity_t **entities,
+		char disable_web_page_preview,
+		char disable_notification,
+		long long int reply_to_message_id,
+		char allow_sending_without_reply,
+		void *reply_markup,
+		int type_of_reply_markup   /* not realize */
+		);
+
 
 #ifdef __cplusplus
 }

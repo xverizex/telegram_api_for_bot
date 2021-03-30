@@ -1855,9 +1855,11 @@ static void handler_chat_member_updated ( tebot_handler_t *h, void *data, json_o
 	}
 }
 
-tebot_result_updated_t *tebot_method_get_updates ( tebot_handler_t *h, const int limit, const int timeout, char **allowed_updates ) {
+tebot_result_updated_t *tebot_method_get_updates ( tebot_handler_t *h, const long long int offset, const int limit, 
+		const int timeout, char **allowed_updates ) {
 
-	struct mimes mimes[3] = {
+	struct mimes mimes[4] = {
+		{ MIMES_TYPE_PARAM, strdup ( "offset" ), strdup_printf ( "%lld", offset ) },
 		{ MIMES_TYPE_PARAM, strdup ( "limit" ), strdup_printf ( "%d", limit ) },
 		{ MIMES_TYPE_PARAM, strdup ( "timeout" ), strdup_printf ( "%d", timeout ) },
 		{ MIMES_TYPE_ARRAY, strdup ( "allowed_updates" ), .array = allowed_updates }
@@ -1867,7 +1869,7 @@ tebot_result_updated_t *tebot_method_get_updates ( tebot_handler_t *h, const int
 	h->res = t;
 	t->update = ( tebot_update_t ** ) calloc ( limit, sizeof ( tebot_update_t * ) );
 
-	char *data = tebot_request_get ( h, "getUpdates", mimes, 3 );
+	char *data = tebot_request_get ( h, "getUpdates", mimes, 4 );
 
 	for ( int i = 0; i < limit; i++ ) {
 		t->update[i] = calloc ( 1, sizeof ( tebot_update_t ) );
@@ -1910,4 +1912,24 @@ tebot_result_updated_t *tebot_method_get_updates ( tebot_handler_t *h, const int
 	}
 
 	return t;
+}
+
+void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id, 
+		char *text,
+		char *parse_mode,
+		tebot_message_entity_t **entities,
+		char disable_web_page_preview,
+		char disable_notification,
+		long long int reply_to_message_id,
+		char allow_sending_without_reply,
+		void *reply_markup,
+		int type_of_reply_markup   /* not realize */
+		) {
+
+	struct mimes mimes[2] = {
+		{ MIMES_TYPE_PARAM, strdup ( "chat_id" ), strdup_printf ( "%lld", chat_id ) },
+		{ MIMES_TYPE_PARAM, strdup ( "text" ), strdup_printf ( "%s", text ) },
+	};
+
+	char *data = tebot_request_get ( h, "sendMessage", mimes, 2 );
 }
