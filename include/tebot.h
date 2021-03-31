@@ -410,6 +410,7 @@ typedef struct tebot_message {
 	char *author_signature;
 	char *text;
 	tebot_message_entity_t **entities;
+	long long int size_entities;
 	tebot_animation_t *animation;
 	tebot_audio_t *audio;
 	tebot_document_t *document;
@@ -588,7 +589,6 @@ tebot_result_updated_t *tebot_method_get_updates ( tebot_handler_t *handler, con
 void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id, 
 		char *text,
 		char *parse_mode,
-		tebot_message_entity_t **entities,
 		char disable_web_page_preview,
 		char disable_notification,
 		long long int reply_to_message_id,

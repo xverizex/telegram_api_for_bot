@@ -252,6 +252,11 @@ void parse_current_object ( tebot_handler_t *h, json_object *json_result, struct
 		case json_type_object: {
 			if ( dot[i].size <= 0 ) break;
 			*( dot[i].ptr ) = calloc ( 1, dot[i].size );
+			if ( !*( dot[i].ptr ) ) {
+				log_time ( LOG_LEVEL_CRITICAL, h->log_file, h->show_debug, "failed to calloc json object." );
+				break;
+			}	
+					
 			void **temp = realloc ( h->for_free, sizeof ( void * ) * h->size_for_free + 1 );
 			if ( temp ) {
 				h->for_free = temp;
@@ -259,6 +264,37 @@ void parse_current_object ( tebot_handler_t *h, json_object *json_result, struct
 				h->size_for_free++;
 			}
 			dot[i].set_links_for_object_and_get_data ( h, *dot[i].ptr, param );
+			}
+			break;
+		case json_type_array: {
+			if ( dot[i].size <= 0 ) break;
+			const int count = json_object_array_length ( param );
+			void **p = NULL;
+
+			p = calloc ( count + 1, sizeof ( void * ) );
+			if ( !p ) {
+				log_time ( LOG_LEVEL_CRITICAL, h->log_file, h->show_debug, "failed to calloc json object." );
+				break;
+			}	
+			void **temp = realloc ( h->for_free, sizeof ( void * ) * h->size_for_free + 1 );
+			if ( temp ) {
+				h->for_free = temp;
+				h->for_free[h->size_for_free] = p;
+				h->size_for_free++;
+			}
+			*dot[i].ptr = p;
+			for ( int index = 0; index < count; index++ ) {
+				p[index] = calloc ( 1, dot[i].size );
+				void **temp = realloc ( h->for_free, sizeof ( void * ) * h->size_for_free + 1 );
+				if ( temp ) {
+					h->for_free = temp;
+					h->for_free[h->size_for_free] = p[index];
+					h->size_for_free++;
+				}
+				json_object *item = json_object_array_get_idx ( param, index );
+				dot[i].set_links_for_object_and_get_data ( h, p[index], item );
+			}
+
 			}
 			break;
 		case json_type_boolean:
@@ -1974,7 +2010,6 @@ tebot_result_updated_t *tebot_method_get_updates ( tebot_handler_t *h, const lon
 void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id, 
 		char *text,
 		char *parse_mode,
-		tebot_message_entity_t **entities,
 		char disable_web_page_preview,
 		char disable_notification,
 		long long int reply_to_message_id,
@@ -1987,87 +2022,8 @@ void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id,
 
 	int l = 0;
 
-	struct mimes mimes[9];
+	struct mimes mimes[8];
 	int index = 0;
-
-	if ( entities ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "entities" );
-
-		json_object *array = json_object_new_array ( );
-
-		for ( int i = 0; entities[i] != NULL; i++ ) {
-			json_object *item = json_object_new_object ( );
-			json_object *item_ = NULL;
-
-			if ( entities[i]->type ) {
-				item_ = json_object_new_string ( entities[i]->type );
-				json_object_object_add ( item, "type", item_ );
-			}
-
-			item_ = json_object_new_int64 ( entities[i]->offset );
-			json_object_object_add ( item, "offset", item_ );
-
-			item_ = json_object_new_int64 ( entities[i]->length );
-			json_object_object_add ( item, "length", item_ );
-
-			if ( entities[i]->url ) {
-				item_ = json_object_new_string ( entities[i]->url );
-				json_object_object_add ( item, "url", item_ );
-			}
-
-			if ( entities[i]->user ) {
-				json_object *user = json_object_new_object ( );
-
-				item_ = json_object_new_int64 ( entities[i]->user->id );
-				json_object_object_add ( user, "id", item_ );
-
-				item_ = json_object_new_boolean ( entities[i]->user->is_bot );
-				json_object_object_add ( user, "is_bot", item_ );
-
-				item_ = json_object_new_string ( entities[i]->user->first_name );
-				json_object_object_add ( user, "first_name", item_ );
-
-				if ( entities[i]->user->last_name ) {
-					item_ = json_object_new_string ( entities[i]->user->last_name );
-					json_object_object_add ( user, "last_name", item_ );
-				}
-
-				if ( entities[i]->user->username ) {
-					item_ = json_object_new_string ( entities[i]->user->username );
-					json_object_object_add ( user, "username", item_ );
-				}
-
-				if ( entities[i]->user->language_code ) {
-					item_ = json_object_new_string ( entities[i]->user->language_code );
-					json_object_object_add ( user, "language_code", item_ );
-				}
-
-				item_ = json_object_new_boolean ( entities[i]->user->can_join_groups );
-				json_object_object_add ( user, "can_join_groups", item_ );
-
-				item_ = json_object_new_boolean ( entities[i]->user->can_read_all_group_messages );
-				json_object_object_add ( user, "can_read_all_group_messages", item_ );
-
-				item_ = json_object_new_boolean ( entities[i]->user->supports_inline_queries );
-				json_object_object_add ( user, "supports_inine_queries", item_ );
-
-				json_object_object_add ( array, "user", user );
-			}
-
-			if ( entities[i]->language ) {
-				item_ = json_object_new_string ( entities[i]->language );
-				json_object_object_add ( item, "language", item_ );
-			}
-
-			json_object_array_add ( array, item );
-		}
-
-		mimes[index].value = strdup_printf ( "%s", json_object_to_json_string ( array ) );
-		index++;
-
-		json_object_put ( array );
-	}
 
 	mimes[index].type = MIMES_TYPE_PARAM;
 	mimes[index].name = strdup ( "chat_id" );
