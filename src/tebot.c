@@ -1990,6 +1990,85 @@ void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id,
 	struct mimes mimes[9];
 	int index = 0;
 
+	if ( entities ) {
+		mimes[index].type = MIMES_TYPE_PARAM;
+		mimes[index].name = strdup ( "entities" );
+
+		json_object *array = json_object_new_array ( );
+
+		for ( int i = 0; entities[i] != NULL; i++ ) {
+			json_object *item = json_object_new_object ( );
+			json_object *item_ = NULL;
+
+			if ( entities[i]->type ) {
+				item_ = json_object_new_string ( entities[i]->type );
+				json_object_object_add ( item, "type", item_ );
+			}
+
+			item_ = json_object_new_int64 ( entities[i]->offset );
+			json_object_object_add ( item, "offset", item_ );
+
+			item_ = json_object_new_int64 ( entities[i]->length );
+			json_object_object_add ( item, "length", item_ );
+
+			if ( entities[i]->url ) {
+				item_ = json_object_new_string ( entities[i]->url );
+				json_object_object_add ( item, "url", item_ );
+			}
+
+			if ( entities[i]->user ) {
+				json_object *user = json_object_new_object ( );
+
+				item_ = json_object_new_int64 ( entities[i]->user->id );
+				json_object_object_add ( user, "id", item_ );
+
+				item_ = json_object_new_boolean ( entities[i]->user->is_bot );
+				json_object_object_add ( user, "is_bot", item_ );
+
+				item_ = json_object_new_string ( entities[i]->user->first_name );
+				json_object_object_add ( user, "first_name", item_ );
+
+				if ( entities[i]->user->last_name ) {
+					item_ = json_object_new_string ( entities[i]->user->last_name );
+					json_object_object_add ( user, "last_name", item_ );
+				}
+
+				if ( entities[i]->user->username ) {
+					item_ = json_object_new_string ( entities[i]->user->username );
+					json_object_object_add ( user, "username", item_ );
+				}
+
+				if ( entities[i]->user->language_code ) {
+					item_ = json_object_new_string ( entities[i]->user->language_code );
+					json_object_object_add ( user, "language_code", item_ );
+				}
+
+				item_ = json_object_new_boolean ( entities[i]->user->can_join_groups );
+				json_object_object_add ( user, "can_join_groups", item_ );
+
+				item_ = json_object_new_boolean ( entities[i]->user->can_read_all_group_messages );
+				json_object_object_add ( user, "can_read_all_group_messages", item_ );
+
+				item_ = json_object_new_boolean ( entities[i]->user->supports_inline_queries );
+				json_object_object_add ( user, "supports_inine_queries", item_ );
+
+				json_object_object_add ( array, "user", user );
+			}
+
+			if ( entities[i]->language ) {
+				item_ = json_object_new_string ( entities[i]->language );
+				json_object_object_add ( item, "language", item_ );
+			}
+
+			json_object_array_add ( array, item );
+		}
+
+		mimes[index].value = strdup_printf ( "%s", json_object_to_json_string ( array ) );
+		index++;
+
+		json_object_put ( array );
+	}
+
 	mimes[index].type = MIMES_TYPE_PARAM;
 	mimes[index].name = strdup ( "chat_id" );
 	mimes[index].value = strdup_printf ( "%lld", chat_id );
@@ -2124,9 +2203,113 @@ void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id,
 		index++;
 		json_object_put ( root );
 	}
+
+	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_MARKUP ) {
+		mimes[index].type = MIMES_TYPE_PARAM;
+		mimes[index].name = strdup ( "reply_markup" );
+		json_object *root = json_object_new_object ( );
+		json_object *array = json_object_new_array ( );
+		json_object *root_array = json_object_new_array ( );
+		json_object_object_add ( root, "keyboard", root_array );
+		tebot_reply_keyboard_markup_t *m = ( tebot_reply_keyboard_markup_t * ) reply_markup;
+		int border = 0;
+
+		for ( int i = 0; m->keyboard[i] != NULL; i++ ) {
+
+			json_object *item = json_object_new_object ( );
+			json_object *item_ = NULL;
+			
+			if ( m->keyboard[i]->text ) {
+				item_ = json_object_new_string ( m->keyboard[i]->text );
+				json_object_object_add ( item, "text", item_ );
+			}
+
+			if ( m->keyboard[i]->request_contact ) {
+				item_ = json_object_new_boolean ( m->keyboard[i]->request_contact );
+				json_object_object_add ( item, "request_contact", item_ );
+			}
+
+			if ( m->keyboard[i]->request_location ) {
+				item_ = json_object_new_boolean ( m->keyboard[i]->request_location );
+				json_object_object_add ( item, "request_location", item_ );
+			}
+
+			if ( m->keyboard[i]->request_poll ) {
+				if ( m->keyboard[i]->request_poll->type ) {
+					item_ = json_object_new_object ( );
+					json_object *item_of_object = NULL;
+					item_of_object = json_object_new_string ( m->keyboard[i]->request_poll->type );
+					json_object_object_add ( item, "request_poll", item_ );
+					json_object_object_add ( item_, "type", item_of_object );
+				}
+			}
+
+			if ( layout && size_layout > 0 ) {
+
+				if ( l < size_layout && border == layout [ l ] ) {
+					json_object_array_add ( root_array, array );
+					array = json_object_new_array ( );
+					l++;
+					border = 0;
+				}
+			}
+
+			json_object_array_add ( array, item );
+
+			border++;
+		}
+		json_object_array_add ( root_array, array );
+		mimes[index].value = strdup ( json_object_to_json_string ( root ) );
+		index++;
+		json_object_put ( root );
+	}
+
+	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_REMOVE ) {
+		mimes[index].type = MIMES_TYPE_PARAM;
+		mimes[index].name = strdup ( "reply_markup" );
+		json_object *root = json_object_new_object ( );
+		tebot_reply_keyboard_remove_t *m = ( tebot_reply_keyboard_remove_t * ) reply_markup;
+		int border = 0;
+
+		json_object *item_;
+
+		item_ = json_object_new_boolean ( 1 );
+		json_object_object_add ( root, "remove_keyboard", item_ );
+
+		item_ = json_object_new_boolean ( m->selective );
+		json_object_object_add ( root, "selective", item_ );
+
+
+		mimes[index].value = strdup ( json_object_to_json_string ( root ) );
+		index++;
+		json_object_put ( root );
+	}
+
+	if ( reply_markup && type_of_reply_markup == FORCE_REPLY ) {
+		mimes[index].type = MIMES_TYPE_PARAM;
+		mimes[index].name = strdup ( "reply_markup" );
+		json_object *root = json_object_new_object ( );
+		tebot_force_reply_t *m = ( tebot_force_reply_t * ) reply_markup;
+		int border = 0;
+
+		json_object *item_;
+
+		item_ = json_object_new_boolean ( 1 );
+		json_object_object_add ( root, "force_reply", item_ );
+
+		item_ = json_object_new_boolean ( m->selective );
+		json_object_object_add ( root, "selective", item_ );
+
+
+		mimes[index].value = strdup ( json_object_to_json_string ( root ) );
+		index++;
+		json_object_put ( root );
+	}
 	
 
 	char *data = tebot_request_get ( h, "sendMessage", mimes, index );
+
+	printf ( "%s\n", data );
 
 	for ( int i = 0; i < index; i++ ) {
 		free ( mimes[i].name );
@@ -2148,6 +2331,16 @@ tebot_inline_keyboard_markup_t *tebot_init_inline_keyboard_markup ( const int si
 	markup->inline_keyboard = calloc ( size + 1, sizeof ( void * ) );
 	for ( int i = 0; i < size; i++ ) {
 		markup->inline_keyboard[i] = calloc ( 1, sizeof ( tebot_inline_keyboard_button_t ) );
+	}
+
+	return markup;
+}
+
+tebot_reply_keyboard_markup_t *tebot_init_reply_keyboard_markup ( const int size ) {
+	tebot_reply_keyboard_markup_t *markup = calloc ( 1, sizeof ( tebot_reply_keyboard_markup_t ) );
+	markup->keyboard = calloc ( size + 1, sizeof ( void * ) );
+	for ( int i = 0; i < size; i++ ) {
+		markup->keyboard[i] = calloc ( 1, sizeof ( tebot_keyboard_button_t ) );
 	}
 
 	return markup;
@@ -2291,4 +2484,14 @@ void tebot_method_copy_message ( tebot_handler_t *h,
 		free ( mimes[i].name );
 		free ( mimes[i].value );
 	}
+}
+
+tebot_message_entity_t **tebot_init_message_entity ( const int size ) {
+	tebot_message_entity_t **m = calloc ( size + 1, sizeof ( tebot_message_entity_t * ) );
+
+	for ( int i = 0; i < size; i++ ) {
+		m[i] = calloc ( 1, sizeof ( tebot_message_entity_t ) );
+	}
+
+	return m;
 }

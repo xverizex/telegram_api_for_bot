@@ -363,6 +363,34 @@ typedef struct tebot_inline_keyboard_markup {
 	tebot_inline_keyboard_button_t **inline_keyboard;
 } tebot_inline_keyboard_markup_t;
 
+typedef struct tebot_keyboard_button_poll_type {
+	char *type;
+} tebot_keyboard_button_poll_type_t;
+
+typedef struct tebot_keyboard_button {
+	char *text;
+	char request_contact;
+	char request_location;
+	tebot_keyboard_button_poll_type_t *request_poll;
+} tebot_keyboard_button_t;
+
+typedef struct tebot_reply_keyboard_markup {
+	tebot_keyboard_button_t **keyboard;
+	char resize_keyboard;
+	char one_time_keyboard;
+	char selective;
+} tebot_reply_keyboard_markup_t;
+
+typedef struct tebot_reply_keyboard_remove {
+	char remove_keyboard;
+	char selective;
+} tebot_reply_keyboard_remove_t;
+
+typedef struct tebot_force_reply {
+	char force_reply;
+	char selective;
+} tebot_force_reply_t;
+
 typedef struct tebot_message {
 	long long int message_id;
 	tebot_user_t *from;
@@ -606,6 +634,8 @@ void tebot_method_copy_message ( tebot_handler_t *h,
 void tebot_free_update ( tebot_handler_t *h );
 
 tebot_inline_keyboard_markup_t *tebot_init_inline_keyboard_markup ( const int size );
+tebot_reply_keyboard_markup_t *tebot_init_reply_keyboard_markup ( const int size );
+tebot_message_entity_t **tebot_init_message_entity ( const int size );
 
 #ifdef __cplusplus
 }
