@@ -2168,12 +2168,10 @@ void tebot_method_send_document ( tebot_handler_t *h, long long int chat_id,
 	struct mimes mimes[2];
 	int index = 0;
 
-	if ( chat_id >= 0 ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "chat_id" );
-		mimes[index].value = strdup_printf ( "%d", chat_id );
-		index++;
-	}
+	mimes[index].type = MIMES_TYPE_PARAM;
+	mimes[index].name = strdup ( "chat_id" );
+	mimes[index].value = strdup_printf ( "%lld", chat_id );
+	index++;
 
 	if ( document ) {
 		mimes[index].type = MIMES_TYPE_FILE;
@@ -2183,6 +2181,111 @@ void tebot_method_send_document ( tebot_handler_t *h, long long int chat_id,
 	}
 
 	char *data = tebot_request_get ( h, "sendDocument", mimes, index );
+
+	for ( int i = 0; i < index; i++ ) {
+		free ( mimes[i].name );
+		free ( mimes[i].value );
+	}
+}
+
+void tebot_method_forwardMessage ( tebot_handler_t *h, long long int chat_id, 
+		long long int from_chat_id, 
+		char disable_notification, 
+		long long int message_id ) {
+
+	struct mimes mimes[4];
+	int index = 0;
+
+	mimes[index].type = MIMES_TYPE_PARAM;
+	mimes[index].name = strdup ( "chat_id" );
+	mimes[index].value = strdup_printf ( "%lld", chat_id );
+	index++;
+
+	mimes[index].type = MIMES_TYPE_PARAM;
+	mimes[index].name = strdup ( "from_chat_id" );
+	mimes[index].value = strdup_printf ( "%lld", from_chat_id );
+	index++;
+
+	mimes[index].type = MIMES_TYPE_PARAM;
+	mimes[index].name = strdup ( "disable_notification" );
+	mimes[index].value = strdup_printf ( "%s", disable_notification ? "true" : "false" );
+	index++;
+
+	mimes[index].type = MIMES_TYPE_PARAM;
+	mimes[index].name = strdup ( "message_id" );
+	mimes[index].value = strdup_printf ( "%lld", message_id );
+	index++;
+
+	char *data = tebot_request_get ( h, "forwardMessage", mimes, index );
+
+	for ( int i = 0; i < index; i++ ) {
+		free ( mimes[i].name );
+		free ( mimes[i].value );
+	}
+}
+
+void tebot_method_copy_message ( tebot_handler_t *h,
+		long long int chat_id,
+		long long int from_chat_id,
+		long long int message_id,
+		char *caption,
+		char *parse_mode,
+		tebot_message_entity_t **caption_entities,
+		char disable_notification,
+		long long int reply_to_message_id,
+		char allow_sending_without_reply,
+		void *reply_markup,
+		int type_reply_markup
+		) {
+
+	struct mimes mimes[8];
+	int index = 0;
+
+	mimes[index].type = MIMES_TYPE_PARAM;
+	mimes[index].name = strdup ( "chat_id" );
+	mimes[index].value = strdup_printf ( "%lld", chat_id );
+	index++;
+
+	if ( caption ) {
+		mimes[index].type = MIMES_TYPE_PARAM;
+		mimes[index].name = strdup ( "caption" );
+		mimes[index].value = strdup_printf ( "%s", caption );
+		index++;
+	}
+
+	mimes[index].type = MIMES_TYPE_PARAM;
+	mimes[index].name = strdup ( "from_chat_id" );
+	mimes[index].value = strdup_printf ( "%lld", from_chat_id );
+	index++;
+
+	mimes[index].type = MIMES_TYPE_PARAM;
+	mimes[index].name = strdup ( "message_id" );
+	mimes[index].value = strdup_printf ( "%lld", message_id );
+	index++;
+
+	if ( reply_to_message_id != 0 ) {
+		mimes[index].type = MIMES_TYPE_PARAM;
+		mimes[index].name = strdup ( "reply_to_message_id" );
+		mimes[index].value = strdup_printf ( "%lld", reply_to_message_id );
+		index++;
+	}
+
+	mimes[index].type = MIMES_TYPE_PARAM;
+	mimes[index].name = strdup ( "allow_sending_without_reply" );
+	mimes[index].value = strdup_printf ( "%s", allow_sending_without_reply ? "true" : "false" );
+	index++;
+
+	mimes[index].type = MIMES_TYPE_PARAM;
+	mimes[index].name = strdup ( "disable_notification" );
+	mimes[index].value = strdup_printf ( "%s", disable_notification ? "true" : "false" );
+	index++;
+
+	mimes[index].type = MIMES_TYPE_PARAM;
+	mimes[index].name = strdup ( "message_id" );
+	mimes[index].value = strdup_printf ( "%lld", message_id );
+	index++;
+
+	char *data = tebot_request_get ( h, "copyMessage", mimes, index );
 
 	for ( int i = 0; i < index; i++ ) {
 		free ( mimes[i].name );

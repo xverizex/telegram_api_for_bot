@@ -583,6 +583,26 @@ void tebot_method_send_document ( tebot_handler_t *h, long long int chat_id,
 		char allow_sending_without_reply,
 		void *reply_markup );
 
+void tebot_method_forwardMessage ( tebot_handler_t *h,
+		long long int chat_id, 
+		long long int from_chat_id, 
+		char disable_notification, 
+		long long int message_id );
+
+void tebot_method_copy_message ( tebot_handler_t *h,
+		long long int chat_id,
+		long long int from_chat_id,
+		long long int message_id,
+		char *caption,
+		char *parse_mode,
+		tebot_message_entity_t **caption_entities,
+		char disable_notification,
+		long long int reply_to_message_id,
+		char allow_sending_without_reply,
+		void *reply_markup,
+		int type_reply_markup
+		);
+
 void tebot_free_update ( tebot_handler_t *h );
 
 tebot_inline_keyboard_markup_t *tebot_init_inline_keyboard_markup ( const int size );
