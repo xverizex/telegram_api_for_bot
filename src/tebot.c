@@ -283,7 +283,7 @@ void parse_current_object ( tebot_handler_t *h, json_object *json_result, struct
 				h->size_for_free++;
 			}
 			*dot[i].ptr = p;
-			for ( int index = 0; index < count; index++ ) {
+			for ( int index = 0; index < count + 1; index++ ) {
 				p[index] = calloc ( 1, dot[i].size );
 				void **temp = realloc ( h->for_free, sizeof ( void * ) * h->size_for_free + 1 );
 				if ( temp ) {
@@ -291,6 +291,7 @@ void parse_current_object ( tebot_handler_t *h, json_object *json_result, struct
 					h->for_free[h->size_for_free] = p[index];
 					h->size_for_free++;
 				}
+				if ( index == count ) break;
 				json_object *item = json_object_array_get_idx ( param, index );
 				dot[i].set_links_for_object_and_get_data ( h, p[index], item );
 			}
