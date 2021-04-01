@@ -648,7 +648,9 @@ void tebot_method_copy_message ( tebot_handler_t *h,
 		long long int reply_to_message_id,
 		char allow_sending_without_reply,
 		void *reply_markup,
-		int type_reply_markup
+		int type_reply_markup,
+		int layout[],
+		int size_layout
 		);
 
 void tebot_free_update ( tebot_handler_t *h );

@@ -26,6 +26,18 @@ struct data_of_types {
 	void (*set_links_for_object_and_get_data) ( tebot_handler_t *h, void *ptr, json_object *param );
 };
 
+#define TYPE_OF_PARAM_PTR_STRING        0
+#define TYPE_OF_PARAM_BOOLEAN           1
+#define TYPE_OF_PARAM_INT               2
+
+struct info_of_params {
+	int type;
+	char *name;
+	void **value;
+	char *printf;
+	int type_of_param;
+};
+
 static void handler_message ( tebot_handler_t *h, void *data, json_object *obj );
 static void handler_user ( tebot_handler_t *h, void *data, json_object *obj );
 static void handler_photo_size ( tebot_handler_t *h, void *data, json_object *obj );
@@ -2008,70 +2020,15 @@ tebot_result_updated_t *tebot_method_get_updates ( tebot_handler_t *h, const lon
 	return t;
 }
 
-void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id, 
-		char *text,
-		char *parse_mode,
-		char disable_web_page_preview,
-		char disable_notification,
-		long long int reply_to_message_id,
-		char allow_sending_without_reply,
-		void *reply_markup,
-		int type_of_reply_markup,
-		int layout[],
-		int size_layout
+static void get_inline_keyboard_markup_json_value ( 
+		struct mimes *mimes, 
+		const int index, 
+		int *layout, 
+		const int size_layout, 
+		void *reply_markup 
 		) {
 
-	int l = 0;
-
-	struct mimes mimes[8];
-	int index = 0;
-
-	mimes[index].type = MIMES_TYPE_PARAM;
-	mimes[index].name = strdup ( "chat_id" );
-	mimes[index].value = strdup_printf ( "%lld", chat_id );
-	index++;
-
-	mimes[index].type = MIMES_TYPE_PARAM;
-	mimes[index].name = strdup ( "text" );
-	mimes[index].value = strdup_printf ( "%s", text );
-	index++;
-
-	if ( parse_mode ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "parse_mode" );
-		mimes[index].value = strdup ( parse_mode );
-		index++;
-	}
-
-	if ( disable_web_page_preview > 0 ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "disable_web_page_preview" );
-		mimes[index].value = strdup_printf ( "%d", disable_web_page_preview );
-		index++;
-	}
-	
-	if ( disable_notification > 0 ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "disable_notification" );
-		mimes[index].value = strdup_printf ( "%d", disable_notification );
-		index++;
-	}
-
-	if ( reply_to_message_id >= 0 ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "reply_to_message_id" );
-		mimes[index].value = strdup_printf ( "%lld", reply_to_message_id );
-		index++;
-	}
-
-	if ( allow_sending_without_reply > 0 ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "allow_sending_without_reply" );
-		mimes[index].value = strdup_printf ( "%d", allow_sending_without_reply );
-		index++;
-	}
-
-	if ( reply_markup && type_of_reply_markup == INLINE_KEYBOARD_MARKUP ) {
+		int l = 0;
 		mimes[index].type = MIMES_TYPE_PARAM;
 		mimes[index].name = strdup ( "reply_markup" );
 		json_object *root = json_object_new_object ( );
@@ -2157,11 +2114,16 @@ void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id,
 		}
 		json_object_array_add ( root_array, array );
 		mimes[index].value = strdup ( json_object_to_json_string ( root ) );
-		index++;
 		json_object_put ( root );
-	}
-
-	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_MARKUP ) {
+}
+static void get_reply_keyboard_markup (
+		struct mimes *mimes, 
+		const int index, 
+		int *layout, 
+		const int size_layout, 
+		void *reply_markup 
+		) {
+		int l = 0;
 		mimes[index].type = MIMES_TYPE_PARAM;
 		mimes[index].name = strdup ( "reply_markup" );
 		json_object *root = json_object_new_object ( );
@@ -2217,11 +2179,16 @@ void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id,
 		}
 		json_object_array_add ( root_array, array );
 		mimes[index].value = strdup ( json_object_to_json_string ( root ) );
-		index++;
 		json_object_put ( root );
-	}
-
-	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_REMOVE ) {
+}
+static void get_reply_keyboard_remove (
+		struct mimes *mimes, 
+		const int index, 
+		int *layout, 
+		const int size_layout, 
+		void *reply_markup 
+		) {
+		int l = 0;
 		mimes[index].type = MIMES_TYPE_PARAM;
 		mimes[index].name = strdup ( "reply_markup" );
 		json_object *root = json_object_new_object ( );
@@ -2238,11 +2205,16 @@ void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id,
 
 
 		mimes[index].value = strdup ( json_object_to_json_string ( root ) );
-		index++;
 		json_object_put ( root );
-	}
-
-	if ( reply_markup && type_of_reply_markup == FORCE_REPLY ) {
+}
+static void get_force_reply (
+		struct mimes *mimes, 
+		const int index, 
+		int *layout, 
+		const int size_layout, 
+		void *reply_markup 
+		) {
+		int l = 0;
 		mimes[index].type = MIMES_TYPE_PARAM;
 		mimes[index].name = strdup ( "reply_markup" );
 		json_object *root = json_object_new_object ( );
@@ -2259,14 +2231,102 @@ void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id,
 
 
 		mimes[index].value = strdup ( json_object_to_json_string ( root ) );
-		index++;
 		json_object_put ( root );
+}
+
+static void fill_fields ( struct mimes mimes[], int *ind, struct info_of_params *iop, int size_info_of_params ) {
+	int index = *ind;
+	for ( int i = 0; i < size_info_of_params; i++ ) {
+		if ( *iop[i].value != 0 ) {
+			switch ( iop[i].type_of_param ) {
+				case TYPE_OF_PARAM_INT: {
+						long long int value = *(( long long int * ) iop[i].value);
+						if ( value != 0 ) {
+							mimes[index].type = iop[i].type;
+							mimes[index].name = strdup ( iop[i].name );
+							mimes[index].value = strdup_printf ( iop[i].printf, value );
+							index++;
+						}
+					}
+					break;
+				case TYPE_OF_PARAM_PTR_STRING: {
+						char *ptr = *((char **) iop[i].value);
+						mimes[index].type = iop[i].type;
+						mimes[index].name = strdup ( iop[i].name );
+						mimes[index].value = strdup_printf ( iop[i].printf, ptr );
+						index++;
+					}
+					break;
+				case TYPE_OF_PARAM_BOOLEAN: {
+						char b = *(( char * ) iop[i].value);
+						if ( b != 0 ) {
+							mimes[index].type = iop[i].type;
+							mimes[index].name = strdup ( iop[i].name );
+							mimes[index].value = strdup ( "true" );
+							index++;
+						}
+					}
+					break;
+			}
+		}
+	}
+	*ind = index;
+}
+
+void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id, 
+		char *text,
+		char *parse_mode,
+		char disable_web_page_preview,
+		char disable_notification,
+		long long int reply_to_message_id,
+		char allow_sending_without_reply,
+		void *reply_markup,
+		int type_of_reply_markup,
+		int layout[],
+		int size_layout
+		) {
+
+	int l = 0;
+
+	struct mimes mimes[9];
+	int index = 0;
+
+	struct info_of_params iop[] = {
+		{ MIMES_TYPE_PARAM, "chat_id", (void **) &chat_id, "%lld", TYPE_OF_PARAM_INT },
+		{ MIMES_TYPE_PARAM, "text", (void **) &text, "%s", TYPE_OF_PARAM_PTR_STRING },
+		{ MIMES_TYPE_PARAM, "parse_mode", (void **) &parse_mode, "%s", TYPE_OF_PARAM_PTR_STRING },
+		{ MIMES_TYPE_PARAM, "disable_web_page_preview", (void **) &disable_web_page_preview, "true", TYPE_OF_PARAM_BOOLEAN },
+		{ MIMES_TYPE_PARAM, "disable_notification", (void **) &disable_notification, "true", TYPE_OF_PARAM_BOOLEAN },
+		{ MIMES_TYPE_PARAM, "allow_sending_without_reply", (void **) &allow_sending_without_reply, "true", TYPE_OF_PARAM_BOOLEAN },
+		{ MIMES_TYPE_PARAM, "reply_to_message_id", (void **) &reply_to_message_id, "%lld", TYPE_OF_PARAM_INT }
+	};
+
+	int size_info_of_params = sizeof ( iop ) / sizeof ( struct info_of_params );
+
+	fill_fields ( mimes, &index, iop, size_info_of_params );
+
+	if ( reply_markup && type_of_reply_markup == INLINE_KEYBOARD_MARKUP ) {
+		get_inline_keyboard_markup_json_value ( mimes, index, layout, size_layout, reply_markup );
+		index++;
+	}
+
+	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_MARKUP ) {
+		get_reply_keyboard_markup ( mimes, index, layout, size_layout, reply_markup );
+		index++;
+	}
+
+	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_REMOVE ) {
+		get_reply_keyboard_remove ( mimes, index, layout, size_layout, reply_markup );
+		index++;
+	}
+
+	if ( reply_markup && type_of_reply_markup == FORCE_REPLY ) {
+		get_force_reply ( mimes, index, layout, size_layout, reply_markup );
+		index++;
 	}
 	
 
 	char *data = tebot_request_get ( h, "sendMessage", mimes, index );
-
-	printf ( "%s\n", data );
 
 	for ( int i = 0; i < index; i++ ) {
 		free ( mimes[i].name );
@@ -2322,250 +2382,40 @@ void tebot_method_send_document ( tebot_handler_t *h, long long int chat_id,
 	struct mimes mimes[11];
 	int index = 0;
 
-	mimes[index].type = MIMES_TYPE_PARAM;
-	mimes[index].name = strdup ( "chat_id" );
-	mimes[index].value = strdup_printf ( "%lld", chat_id );
-	index++;
+	struct info_of_params iop[] = {
+		{ MIMES_TYPE_PARAM, "chat_id", (void **) &chat_id, "%lld", TYPE_OF_PARAM_INT },
+		{ MIMES_TYPE_FILE, "document", (void **) &document, "%s", TYPE_OF_PARAM_PTR_STRING },
+		{ MIMES_TYPE_PARAM, "parse_mode", (void **) &parse_mode, "%s", TYPE_OF_PARAM_PTR_STRING },
+		{ MIMES_TYPE_PARAM, "caption", (void **) &caption, "%s", TYPE_OF_PARAM_PTR_STRING },
+		{ MIMES_TYPE_PARAM, "disable_content_type_detection", (void **) &disable_content_type_detection, "true", TYPE_OF_PARAM_BOOLEAN },
+		{ MIMES_TYPE_PARAM, "disable_notification", (void **) &disable_notification, "true", TYPE_OF_PARAM_BOOLEAN },
+		{ MIMES_TYPE_PARAM, "allow_sending_without_reply", (void **) &allow_sending_without_reply, "true", TYPE_OF_PARAM_BOOLEAN },
+		{ MIMES_TYPE_PARAM, "reply_to_message_id", (void **) &reply_to_message_id, "%lld", TYPE_OF_PARAM_INT }
+	};
 
-	if ( thumb ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "thumb" );
-		mimes[index].value = strdup_printf ( "%s", thumb );
-		index++;
-	}
+	int size_info_of_params = sizeof ( iop ) / sizeof ( struct info_of_params );
 
-	if ( caption ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "caption" );
-		mimes[index].value = strdup_printf ( "%s", caption );
-		index++;
-	}
+	fill_fields ( mimes, &index, iop, size_info_of_params );
 
-	if ( disable_content_type_detection > 0 ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "disable_content_type_detection" );
-		mimes[index].value = strdup_printf ( "%s", "true" );
-		index++;
-	}
-
-	if ( disable_notification > 0 ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "disable_notification" );
-		mimes[index].value = strdup_printf ( "%s", "true" );
-		index++;
-	}
-
-	if ( reply_to_message_id != 0 ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "reply_to_message_id" );
-		mimes[index].value = strdup_printf ( "%lld", reply_to_message_id );
-		index++;
-	}
-	
-	if ( allow_sending_without_reply > 0 ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "allow_sending_without_reply" );
-		mimes[index].value = strdup_printf ( "%s", "true" );
-		index++;
-	}
-
-	if ( document ) {
-		mimes[index].type = MIMES_TYPE_FILE;
-		mimes[index].name = strdup ( "document" );
-		mimes[index].value = strdup_printf ( "%s", document );
-		index++;
-	}
 
 	if ( reply_markup && type_of_reply_markup == INLINE_KEYBOARD_MARKUP ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "reply_markup" );
-		json_object *root = json_object_new_object ( );
-		json_object *array = json_object_new_array ( );
-		json_object *root_array = json_object_new_array ( );
-		json_object_object_add ( root, "keyboard", root_array );
-		tebot_inline_keyboard_markup_t *m = ( tebot_inline_keyboard_markup_t * ) reply_markup;
-		int border = 0;
-
-		for ( int i = 0; m->inline_keyboard[i] != NULL; i++ ) {
-			json_object *item = json_object_new_object ( );
-			json_object *item_ = NULL;
-			
-			if ( m->inline_keyboard[i]->text ) {
-				item_ = json_object_new_string ( m->inline_keyboard[i]->text );
-				json_object_object_add ( item, "text", item_ );
-			}
-
-			if ( m->inline_keyboard[i]->callback_data ) {
-				item_ = json_object_new_string ( m->inline_keyboard[i]->callback_data );
-				json_object_object_add ( item, "callback_data", item_ );
-			}
-
-			if ( m->inline_keyboard[i]->url ) {
-				item_ = json_object_new_string ( m->inline_keyboard[i]->url );
-				json_object_object_add ( item, "url", item_ );
-			}
-
-			if ( m->inline_keyboard[i]->switch_inline_query ) {
-				item_ = json_object_new_string ( m->inline_keyboard[i]->switch_inline_query );
-				json_object_object_add ( item, "switch_inline_query", item_ );
-			}
-
-			if ( m->inline_keyboard[i]->switch_inline_query_current_chat ) {
-				item_ = json_object_new_string ( m->inline_keyboard[i]->switch_inline_query_current_chat );
-				json_object_object_add ( item, "switch_inline_query_current_chat", item_ );
-			}
-
-			if ( m->inline_keyboard[i]->pay ) {
-				item_ = json_object_new_boolean ( 1 );
-				json_object_object_add ( item, "pay", item_ );
-			}
-
-			if ( m->inline_keyboard[i]->login_url ) {
-				json_object *login_url = json_object_new_object ( );
-
-				if ( m->inline_keyboard[i]->login_url->url ) {
-					item_ = json_object_new_string ( m->inline_keyboard[i]->login_url->url );
-					json_object_object_add ( login_url, "url", item_ );
-				}
-
-				if ( m->inline_keyboard[i]->login_url->forward_text ) {
-					item_ = json_object_new_string ( m->inline_keyboard[i]->login_url->forward_text );
-					json_object_object_add ( login_url, "forward_text", item_ );
-				}
-
-				if ( m->inline_keyboard[i]->login_url->bot_username ) {
-					item_ = json_object_new_string ( m->inline_keyboard[i]->login_url->bot_username );
-					json_object_object_add ( login_url, "bot_username", item_ );
-				}
-
-				if ( m->inline_keyboard[i]->login_url->request_write_access ) {
-					item_ = json_object_new_boolean ( m->inline_keyboard[i]->login_url->request_write_access );
-					json_object_object_add ( login_url, "request_write_access", item_ );
-				}
-
-				json_object_object_add ( item, "login_url", login_url );
-			}
-
-			if ( layout && size_layout > 0 ) {
-
-				if ( l < size_layout && border == layout [ l ] ) {
-					json_object_array_add ( root_array, array );
-					array = json_object_new_array ( );
-					l++;
-					border = 0;
-				}
-			}
-
-			json_object_array_add ( array, item );
-
-			border++;
-		}
-		json_object_array_add ( root_array, array );
-		mimes[index].value = strdup ( json_object_to_json_string ( root ) );
+		get_inline_keyboard_markup_json_value ( mimes, index, layout, size_layout, reply_markup );
 		index++;
-		json_object_put ( root );
 	}
 
 	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_MARKUP ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "reply_markup" );
-		json_object *root = json_object_new_object ( );
-		json_object *array = json_object_new_array ( );
-		json_object *root_array = json_object_new_array ( );
-		json_object_object_add ( root, "keyboard", root_array );
-		tebot_reply_keyboard_markup_t *m = ( tebot_reply_keyboard_markup_t * ) reply_markup;
-		int border = 0;
-
-		for ( int i = 0; m->keyboard[i] != NULL; i++ ) {
-
-			json_object *item = json_object_new_object ( );
-			json_object *item_ = NULL;
-			
-			if ( m->keyboard[i]->text ) {
-				item_ = json_object_new_string ( m->keyboard[i]->text );
-				json_object_object_add ( item, "text", item_ );
-			}
-
-			if ( m->keyboard[i]->request_contact ) {
-				item_ = json_object_new_boolean ( m->keyboard[i]->request_contact );
-				json_object_object_add ( item, "request_contact", item_ );
-			}
-
-			if ( m->keyboard[i]->request_location ) {
-				item_ = json_object_new_boolean ( m->keyboard[i]->request_location );
-				json_object_object_add ( item, "request_location", item_ );
-			}
-
-			if ( m->keyboard[i]->request_poll ) {
-				if ( m->keyboard[i]->request_poll->type ) {
-					item_ = json_object_new_object ( );
-					json_object *item_of_object = NULL;
-					item_of_object = json_object_new_string ( m->keyboard[i]->request_poll->type );
-					json_object_object_add ( item, "request_poll", item_ );
-					json_object_object_add ( item_, "type", item_of_object );
-				}
-			}
-
-			if ( layout && size_layout > 0 ) {
-
-				if ( l < size_layout && border == layout [ l ] ) {
-					json_object_array_add ( root_array, array );
-					array = json_object_new_array ( );
-					l++;
-					border = 0;
-				}
-			}
-
-			json_object_array_add ( array, item );
-
-			border++;
-		}
-		json_object_array_add ( root_array, array );
-		mimes[index].value = strdup ( json_object_to_json_string ( root ) );
+		get_reply_keyboard_markup ( mimes, index, layout, size_layout, reply_markup );
 		index++;
-		json_object_put ( root );
 	}
 
 	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_REMOVE ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "reply_markup" );
-		json_object *root = json_object_new_object ( );
-		tebot_reply_keyboard_remove_t *m = ( tebot_reply_keyboard_remove_t * ) reply_markup;
-		int border = 0;
-
-		json_object *item_;
-
-		item_ = json_object_new_boolean ( 1 );
-		json_object_object_add ( root, "remove_keyboard", item_ );
-
-		item_ = json_object_new_boolean ( m->selective );
-		json_object_object_add ( root, "selective", item_ );
-
-
-		mimes[index].value = strdup ( json_object_to_json_string ( root ) );
+		get_reply_keyboard_remove ( mimes, index, layout, size_layout, reply_markup );
 		index++;
-		json_object_put ( root );
 	}
 
 	if ( reply_markup && type_of_reply_markup == FORCE_REPLY ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "reply_markup" );
-		json_object *root = json_object_new_object ( );
-		tebot_force_reply_t *m = ( tebot_force_reply_t * ) reply_markup;
-		int border = 0;
-
-		json_object *item_;
-
-		item_ = json_object_new_boolean ( 1 );
-		json_object_object_add ( root, "force_reply", item_ );
-
-		item_ = json_object_new_boolean ( m->selective );
-		json_object_object_add ( root, "selective", item_ );
-
-
-		mimes[index].value = strdup ( json_object_to_json_string ( root ) );
+		get_force_reply ( mimes, index, layout, size_layout, reply_markup );
 		index++;
-		json_object_put ( root );
 	}
 
 	char *data = tebot_request_get ( h, "sendDocument", mimes, index );
@@ -2575,6 +2425,7 @@ void tebot_method_send_document ( tebot_handler_t *h, long long int chat_id,
 		free ( mimes[i].value );
 	}
 }
+
 
 void tebot_method_send_audio ( tebot_handler_t *h, long long int chat_id, 
 		char *audio,
@@ -2596,281 +2447,45 @@ void tebot_method_send_audio ( tebot_handler_t *h, long long int chat_id,
 
 	int l = 0;
 
+	struct info_of_params iop[] = {
+		{ MIMES_TYPE_PARAM, "chat_id", (void **) &chat_id, "%lld", TYPE_OF_PARAM_INT },
+		{ MIMES_TYPE_PARAM, "duration", (void **) &duration, "%lld", TYPE_OF_PARAM_INT },
+		{ MIMES_TYPE_PARAM, "title", (void **) &title, "%s", TYPE_OF_PARAM_PTR_STRING },
+		{ MIMES_TYPE_PARAM, "caption", (void **) &caption, "%s", TYPE_OF_PARAM_PTR_STRING },
+		{ MIMES_TYPE_PARAM, "performer", (void **) &performer, "%s", TYPE_OF_PARAM_PTR_STRING },
+		{ MIMES_TYPE_PARAM, "thumb", (void **) &thumb, "%s", TYPE_OF_PARAM_PTR_STRING },
+		{ MIMES_TYPE_PARAM, "disable_content_type_detection", (void **) &disable_content_type_detection, "true", TYPE_OF_PARAM_BOOLEAN },
+		{ MIMES_TYPE_PARAM, "disable_notification", (void **) &disable_notification, "true", TYPE_OF_PARAM_BOOLEAN },
+		{ MIMES_TYPE_PARAM, "reply_to_message_id", (void **) &reply_to_message_id, "%lld", TYPE_OF_PARAM_INT },
+		{ MIMES_TYPE_PARAM, "allow_sending_without_reply", (void **) &allow_sending_without_reply, "true", TYPE_OF_PARAM_BOOLEAN },
+		{ MIMES_TYPE_FILE, "audio", (void **) &audio, "%s", TYPE_OF_PARAM_PTR_STRING }
+	};
+
 	struct mimes mimes[13];
 	int index = 0;
 
-	mimes[index].type = MIMES_TYPE_PARAM;
-	mimes[index].name = strdup ( "chat_id" );
-	mimes[index].value = strdup_printf ( "%lld", chat_id );
-	index++;
+	int size_info_of_params = sizeof ( iop ) / sizeof ( struct info_of_params );
 
-	if ( duration > 0 ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "duration" );
-		mimes[index].value = strdup_printf ( "%lld", duration );
-		index++;
-	}
-
-	if ( title ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "title" );
-		mimes[index].value = strdup_printf ( "%s", title );
-		index++;
-	}
-
-	if ( caption ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "caption" );
-		mimes[index].value = strdup_printf ( "%s", caption );
-		index++;
-	}
-
-	if ( performer ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "performer" );
-		mimes[index].value = strdup_printf ( "%s", performer );
-		index++;
-	}
-
-	if ( thumb ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "thumb" );
-		mimes[index].value = strdup_printf ( "%s", thumb );
-		index++;
-	}
-
-	if ( caption ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "caption" );
-		mimes[index].value = strdup_printf ( "%s", caption );
-		index++;
-	}
-
-	if ( disable_content_type_detection > 0 ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "disable_content_type_detection" );
-		mimes[index].value = strdup_printf ( "%s", "true" );
-		index++;
-	}
-
-	if ( disable_notification > 0 ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "disable_notification" );
-		mimes[index].value = strdup_printf ( "%s", "true" );
-		index++;
-	}
-
-	if ( reply_to_message_id != 0 ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "reply_to_message_id" );
-		mimes[index].value = strdup_printf ( "%lld", reply_to_message_id );
-		index++;
-	}
-	
-	if ( allow_sending_without_reply > 0 ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "allow_sending_without_reply" );
-		mimes[index].value = strdup_printf ( "%s", "true" );
-		index++;
-	}
-
-	if ( audio ) {
-		mimes[index].type = MIMES_TYPE_FILE;
-		mimes[index].name = strdup ( "audio" );
-		mimes[index].value = strdup_printf ( "%s", audio );
-		index++;
-	}
+	fill_fields ( mimes, &index, iop, size_info_of_params );
 
 	if ( reply_markup && type_of_reply_markup == INLINE_KEYBOARD_MARKUP ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "reply_markup" );
-		json_object *root = json_object_new_object ( );
-		json_object *array = json_object_new_array ( );
-		json_object *root_array = json_object_new_array ( );
-		json_object_object_add ( root, "keyboard", root_array );
-		tebot_inline_keyboard_markup_t *m = ( tebot_inline_keyboard_markup_t * ) reply_markup;
-		int border = 0;
-
-		for ( int i = 0; m->inline_keyboard[i] != NULL; i++ ) {
-			json_object *item = json_object_new_object ( );
-			json_object *item_ = NULL;
-			
-			if ( m->inline_keyboard[i]->text ) {
-				item_ = json_object_new_string ( m->inline_keyboard[i]->text );
-				json_object_object_add ( item, "text", item_ );
-			}
-
-			if ( m->inline_keyboard[i]->callback_data ) {
-				item_ = json_object_new_string ( m->inline_keyboard[i]->callback_data );
-				json_object_object_add ( item, "callback_data", item_ );
-			}
-
-			if ( m->inline_keyboard[i]->url ) {
-				item_ = json_object_new_string ( m->inline_keyboard[i]->url );
-				json_object_object_add ( item, "url", item_ );
-			}
-
-			if ( m->inline_keyboard[i]->switch_inline_query ) {
-				item_ = json_object_new_string ( m->inline_keyboard[i]->switch_inline_query );
-				json_object_object_add ( item, "switch_inline_query", item_ );
-			}
-
-			if ( m->inline_keyboard[i]->switch_inline_query_current_chat ) {
-				item_ = json_object_new_string ( m->inline_keyboard[i]->switch_inline_query_current_chat );
-				json_object_object_add ( item, "switch_inline_query_current_chat", item_ );
-			}
-
-			if ( m->inline_keyboard[i]->pay ) {
-				item_ = json_object_new_boolean ( 1 );
-				json_object_object_add ( item, "pay", item_ );
-			}
-
-			if ( m->inline_keyboard[i]->login_url ) {
-				json_object *login_url = json_object_new_object ( );
-
-				if ( m->inline_keyboard[i]->login_url->url ) {
-					item_ = json_object_new_string ( m->inline_keyboard[i]->login_url->url );
-					json_object_object_add ( login_url, "url", item_ );
-				}
-
-				if ( m->inline_keyboard[i]->login_url->forward_text ) {
-					item_ = json_object_new_string ( m->inline_keyboard[i]->login_url->forward_text );
-					json_object_object_add ( login_url, "forward_text", item_ );
-				}
-
-				if ( m->inline_keyboard[i]->login_url->bot_username ) {
-					item_ = json_object_new_string ( m->inline_keyboard[i]->login_url->bot_username );
-					json_object_object_add ( login_url, "bot_username", item_ );
-				}
-
-				if ( m->inline_keyboard[i]->login_url->request_write_access ) {
-					item_ = json_object_new_boolean ( m->inline_keyboard[i]->login_url->request_write_access );
-					json_object_object_add ( login_url, "request_write_access", item_ );
-				}
-
-				json_object_object_add ( item, "login_url", login_url );
-			}
-
-			if ( layout && size_layout > 0 ) {
-
-				if ( l < size_layout && border == layout [ l ] ) {
-					json_object_array_add ( root_array, array );
-					array = json_object_new_array ( );
-					l++;
-					border = 0;
-				}
-			}
-
-			json_object_array_add ( array, item );
-
-			border++;
-		}
-		json_object_array_add ( root_array, array );
-		mimes[index].value = strdup ( json_object_to_json_string ( root ) );
+		get_inline_keyboard_markup_json_value ( mimes, index, layout, size_layout, reply_markup );
 		index++;
-		json_object_put ( root );
 	}
 
 	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_MARKUP ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "reply_markup" );
-		json_object *root = json_object_new_object ( );
-		json_object *array = json_object_new_array ( );
-		json_object *root_array = json_object_new_array ( );
-		json_object_object_add ( root, "keyboard", root_array );
-		tebot_reply_keyboard_markup_t *m = ( tebot_reply_keyboard_markup_t * ) reply_markup;
-		int border = 0;
-
-		for ( int i = 0; m->keyboard[i] != NULL; i++ ) {
-
-			json_object *item = json_object_new_object ( );
-			json_object *item_ = NULL;
-			
-			if ( m->keyboard[i]->text ) {
-				item_ = json_object_new_string ( m->keyboard[i]->text );
-				json_object_object_add ( item, "text", item_ );
-			}
-
-			if ( m->keyboard[i]->request_contact ) {
-				item_ = json_object_new_boolean ( m->keyboard[i]->request_contact );
-				json_object_object_add ( item, "request_contact", item_ );
-			}
-
-			if ( m->keyboard[i]->request_location ) {
-				item_ = json_object_new_boolean ( m->keyboard[i]->request_location );
-				json_object_object_add ( item, "request_location", item_ );
-			}
-
-			if ( m->keyboard[i]->request_poll ) {
-				if ( m->keyboard[i]->request_poll->type ) {
-					item_ = json_object_new_object ( );
-					json_object *item_of_object = NULL;
-					item_of_object = json_object_new_string ( m->keyboard[i]->request_poll->type );
-					json_object_object_add ( item, "request_poll", item_ );
-					json_object_object_add ( item_, "type", item_of_object );
-				}
-			}
-
-			if ( layout && size_layout > 0 ) {
-
-				if ( l < size_layout && border == layout [ l ] ) {
-					json_object_array_add ( root_array, array );
-					array = json_object_new_array ( );
-					l++;
-					border = 0;
-				}
-			}
-
-			json_object_array_add ( array, item );
-
-			border++;
-		}
-		json_object_array_add ( root_array, array );
-		mimes[index].value = strdup ( json_object_to_json_string ( root ) );
+		get_reply_keyboard_markup ( mimes, index, layout, size_layout, reply_markup );
 		index++;
-		json_object_put ( root );
 	}
 
 	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_REMOVE ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "reply_markup" );
-		json_object *root = json_object_new_object ( );
-		tebot_reply_keyboard_remove_t *m = ( tebot_reply_keyboard_remove_t * ) reply_markup;
-		int border = 0;
-
-		json_object *item_;
-
-		item_ = json_object_new_boolean ( 1 );
-		json_object_object_add ( root, "remove_keyboard", item_ );
-
-		item_ = json_object_new_boolean ( m->selective );
-		json_object_object_add ( root, "selective", item_ );
-
-
-		mimes[index].value = strdup ( json_object_to_json_string ( root ) );
+		get_reply_keyboard_remove ( mimes, index, layout, size_layout, reply_markup );
 		index++;
-		json_object_put ( root );
 	}
 
 	if ( reply_markup && type_of_reply_markup == FORCE_REPLY ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "reply_markup" );
-		json_object *root = json_object_new_object ( );
-		tebot_force_reply_t *m = ( tebot_force_reply_t * ) reply_markup;
-		int border = 0;
-
-		json_object *item_;
-
-		item_ = json_object_new_boolean ( 1 );
-		json_object_object_add ( root, "force_reply", item_ );
-
-		item_ = json_object_new_boolean ( m->selective );
-		json_object_object_add ( root, "selective", item_ );
-
-
-		mimes[index].value = strdup ( json_object_to_json_string ( root ) );
+		get_force_reply ( mimes, index, layout, size_layout, reply_markup );
 		index++;
-		json_object_put ( root );
 	}
 
 	char *data = tebot_request_get ( h, "sendAudio", mimes, index );
@@ -2889,25 +2504,16 @@ void tebot_method_forwardMessage ( tebot_handler_t *h, long long int chat_id,
 	struct mimes mimes[4];
 	int index = 0;
 
-	mimes[index].type = MIMES_TYPE_PARAM;
-	mimes[index].name = strdup ( "chat_id" );
-	mimes[index].value = strdup_printf ( "%lld", chat_id );
-	index++;
+	struct info_of_params iop[] = {
+		{ MIMES_TYPE_PARAM, "chat_id", (void **) &chat_id, "%lld", TYPE_OF_PARAM_INT },
+		{ MIMES_TYPE_PARAM, "from_chat_id", (void **) &from_chat_id, "%lld", TYPE_OF_PARAM_INT },
+		{ MIMES_TYPE_PARAM, "disable_notification", (void **) &disable_notification, "true", TYPE_OF_PARAM_BOOLEAN },
+		{ MIMES_TYPE_PARAM, "message_id", (void **) &message_id, "%lld", TYPE_OF_PARAM_INT }
+	};
 
-	mimes[index].type = MIMES_TYPE_PARAM;
-	mimes[index].name = strdup ( "from_chat_id" );
-	mimes[index].value = strdup_printf ( "%lld", from_chat_id );
-	index++;
+	int size_info_of_params = sizeof ( iop ) / sizeof ( struct info_of_params );
 
-	mimes[index].type = MIMES_TYPE_PARAM;
-	mimes[index].name = strdup ( "disable_notification" );
-	mimes[index].value = strdup_printf ( "%s", disable_notification ? "true" : "false" );
-	index++;
-
-	mimes[index].type = MIMES_TYPE_PARAM;
-	mimes[index].name = strdup ( "message_id" );
-	mimes[index].value = strdup_printf ( "%lld", message_id );
-	index++;
+	fill_fields ( mimes, &index, iop, size_info_of_params );
 
 	char *data = tebot_request_get ( h, "forwardMessage", mimes, index );
 
@@ -2927,55 +2533,48 @@ void tebot_method_copy_message ( tebot_handler_t *h,
 		long long int reply_to_message_id,
 		char allow_sending_without_reply,
 		void *reply_markup,
-		int type_reply_markup
+		int type_of_reply_markup,
+		int layout[],
+		int size_layout
 		) {
 
-	struct mimes mimes[8];
+	struct mimes mimes[9];
 	int index = 0;
 
-	mimes[index].type = MIMES_TYPE_PARAM;
-	mimes[index].name = strdup ( "chat_id" );
-	mimes[index].value = strdup_printf ( "%lld", chat_id );
-	index++;
+	struct info_of_params iop[] = {
+		{ MIMES_TYPE_PARAM, "chat_id", (void **) &chat_id, "%lld", TYPE_OF_PARAM_INT },
+		{ MIMES_TYPE_PARAM, "from_chat_id", (void **) &from_chat_id, "%lld", TYPE_OF_PARAM_INT },
+		{ MIMES_TYPE_PARAM, "message_id", (void **) &message_id, "%lld", TYPE_OF_PARAM_INT },
+		{ MIMES_TYPE_PARAM, "reply_to_message_id", (void **) &reply_to_message_id, "%lld", TYPE_OF_PARAM_INT },
+		{ MIMES_TYPE_PARAM, "caption", (void **) &caption, "%s", TYPE_OF_PARAM_PTR_STRING },
+		{ MIMES_TYPE_PARAM, "parse_mode", (void **) &parse_mode, "%s", TYPE_OF_PARAM_PTR_STRING },
+		{ MIMES_TYPE_PARAM, "disable_notification", (void **) &disable_notification, "true", TYPE_OF_PARAM_BOOLEAN },
+		{ MIMES_TYPE_PARAM, "allow_sending_without_reply", (void **) &allow_sending_without_reply, "true", TYPE_OF_PARAM_BOOLEAN }
+	};
 
-	if ( caption ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "caption" );
-		mimes[index].value = strdup_printf ( "%s", caption );
+	int size_info_of_params = sizeof ( iop ) / sizeof ( struct info_of_params );
+
+	fill_fields ( mimes, &index, iop, size_info_of_params );
+
+	if ( reply_markup && type_of_reply_markup == INLINE_KEYBOARD_MARKUP ) {
+		get_inline_keyboard_markup_json_value ( mimes, index, layout, size_layout, reply_markup );
 		index++;
 	}
 
-	mimes[index].type = MIMES_TYPE_PARAM;
-	mimes[index].name = strdup ( "from_chat_id" );
-	mimes[index].value = strdup_printf ( "%lld", from_chat_id );
-	index++;
-
-	mimes[index].type = MIMES_TYPE_PARAM;
-	mimes[index].name = strdup ( "message_id" );
-	mimes[index].value = strdup_printf ( "%lld", message_id );
-	index++;
-
-	if ( reply_to_message_id != 0 ) {
-		mimes[index].type = MIMES_TYPE_PARAM;
-		mimes[index].name = strdup ( "reply_to_message_id" );
-		mimes[index].value = strdup_printf ( "%lld", reply_to_message_id );
+	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_MARKUP ) {
+		get_reply_keyboard_markup ( mimes, index, layout, size_layout, reply_markup );
 		index++;
 	}
 
-	mimes[index].type = MIMES_TYPE_PARAM;
-	mimes[index].name = strdup ( "allow_sending_without_reply" );
-	mimes[index].value = strdup_printf ( "%s", allow_sending_without_reply ? "true" : "false" );
-	index++;
+	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_REMOVE ) {
+		get_reply_keyboard_remove ( mimes, index, layout, size_layout, reply_markup );
+		index++;
+	}
 
-	mimes[index].type = MIMES_TYPE_PARAM;
-	mimes[index].name = strdup ( "disable_notification" );
-	mimes[index].value = strdup_printf ( "%s", disable_notification ? "true" : "false" );
-	index++;
-
-	mimes[index].type = MIMES_TYPE_PARAM;
-	mimes[index].name = strdup ( "message_id" );
-	mimes[index].value = strdup_printf ( "%lld", message_id );
-	index++;
+	if ( reply_markup && type_of_reply_markup == FORCE_REPLY ) {
+		get_force_reply ( mimes, index, layout, size_layout, reply_markup );
+		index++;
+	}
 
 	char *data = tebot_request_get ( h, "copyMessage", mimes, index );
 
