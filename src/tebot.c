@@ -2827,7 +2827,7 @@ void tebot_method_send_venue ( tebot_handler_t *h,
 
 	parse_reply_markup ( mimes, &index, layout, size_layout, reply_markup, type_of_reply_markup );
 
-	char *data = tebot_request_get ( h, "sendLocation", mimes, index );
+	char *data = tebot_request_get ( h, "sendVenue", mimes, index );
 
 	for ( int i = 0; i < index; i++ ) {
 		free ( mimes[i].name );
