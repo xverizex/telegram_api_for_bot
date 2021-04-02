@@ -19,42 +19,24 @@
 * sendVenue
 * sendPoll
 
-Мне нравиться как я придумал код для этой библиотеки. Добавление новых функций из-за этого занимает мало времени. Нужно всего лишь скопировать одну функцию и поменять в ней названия в данных. Насчёт утечек памяти не уверен, но я сделал так, что память для объектов и строк выделяется только в одном месте в библиотеке. Так что здесь трудно запутаться. Есть ещё места где выделяется память, но там вроде тоже всё нормально. Освобождение памяти происходит без сложных алгоритмов.
+Мне нравиться как я придумал код для этой библиотеки. Добавление новых функций из-за этого занимает мало времени. Нужно всего лишь скопировать одну функцию и поменять в ней названия в данных. Насчёт утечек памяти не уверен, но я сделал так, что память для объектов и строк выделяется только в одном месте в библиотеке. Так что здесь трудно запутаться. Есть ещё места где выделяется память, но там вроде тоже всё нормально. Освобождение памяти происходит без сложных алгоритмов. Если параметр не нужно использовать в функции, то нужно писать `0` или `NULL`, чтобы этот параметр не учитывался в отправке данных.
 
 пример:
 ```
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdlib.h>
 #include <tebot.h>
+#include <malloc.h>
+#include "header.h"
 
-char *token = "";
 
 int main ( int argc, char **argv ) {
 	
-	tebot_handler_t *h = tebot_init ( token, TEBOT_DEBUG_NOT_SHOW, NULL );
+	tebot_handler_t *h = tebot_init ( TOKEN, TEBOT_DEBUG_NOT_SHOW, NULL );
 
 	long long int offset = 0;
-
-	tebot_inline_keyboard_markup_t *m = tebot_init_inline_keyboard_markup ( 8 );
-	m->inline_keyboard[0]->text = strdup ( "hello" );
-	m->inline_keyboard[0]->callback_data = strdup ( "button_hello" );
-	m->inline_keyboard[1]->text = strdup ( "netto" );
-	m->inline_keyboard[1]->callback_data = strdup ( "button_netto" );
-	m->inline_keyboard[2]->text = strdup ( "hello" );
-	m->inline_keyboard[2]->callback_data = strdup ( "button_hello" );
-	m->inline_keyboard[3]->text = strdup ( "netto" );
-	m->inline_keyboard[3]->callback_data = strdup ( "button_netto" );
-	m->inline_keyboard[4]->text = strdup ( "hello" );
-	m->inline_keyboard[4]->callback_data = strdup ( "button_hello" );
-	m->inline_keyboard[5]->text = strdup ( "netto" );
-	m->inline_keyboard[5]->callback_data = strdup ( "button_netto" );
-	m->inline_keyboard[6]->text = strdup ( "netto" );
-	m->inline_keyboard[6]->callback_data = strdup ( "button_netto" );
-	m->inline_keyboard[7]->text = strdup ( "netto" );
-	m->inline_keyboard[7]->callback_data = strdup ( "button_netto" );
-
-	int layout[] = { 3, 2, 3 };
 
 	while ( 1 ) {
 		tebot_result_updated_t *t = tebot_method_get_updates ( h, offset, 20, 0, NULL );
@@ -63,23 +45,9 @@ int main ( int argc, char **argv ) {
 
 			if ( t->update[i]->message ) {
 				if ( t->update[i]->message->text ) {
-					if ( !strncmp ( t->update[i]->message->text, "/start", 7 ) ) {
-						tebot_method_send_message ( h,
-								t->update[i]->message->from->id,
-								"выберите кнопку",
-								NULL,
-								NULL,
-								-1,
-								-1,
-								-1,
-								-1,
-								m,
-								INLINE_KEYBOARD_MARKUP,
-								layout,
-								3	
-								);
-
-					}
+					printf ( "%s: %s\n", 
+							t->update[i]->message->from->username,
+							t->update[i]->message->text );
 				}
 			}
 
