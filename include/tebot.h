@@ -632,6 +632,18 @@ void tebot_method_send_audio ( tebot_handler_t *h, long long int chat_id,
 		int size_layout
 		);
 
+void tebot_method_send_photo ( tebot_handler_t *h, long long int chat_id, 
+		char *photo,
+		char *caption,
+		char *parse_mode,
+		char disable_notification,
+		const long long int reply_to_message_id,
+		char allow_sending_without_reply,
+		void *reply_markup,
+		int type_of_reply_markup,
+		int layout[],
+		int size_layout );
+
 void tebot_method_forwardMessage ( tebot_handler_t *h,
 		long long int chat_id, 
 		long long int from_chat_id, 
