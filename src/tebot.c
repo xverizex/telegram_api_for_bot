@@ -29,6 +29,7 @@ struct data_of_types {
 #define TYPE_OF_PARAM_PTR_STRING        0
 #define TYPE_OF_PARAM_BOOLEAN           1
 #define TYPE_OF_PARAM_INT               2
+#define TYPE_OF_PARAM_FLOAT             3
 
 struct info_of_params {
 	int type;
@@ -2276,6 +2277,16 @@ static void fill_fields ( struct mimes mimes[], int *ind, struct info_of_params 
 						}
 					}
 					break;
+				case TYPE_OF_PARAM_FLOAT: {
+						double value = *(( double * ) iop[i].value);
+						if ( value != 0 ) {
+							mimes[index].type = iop[i].type;
+							mimes[index].name = strdup ( iop[i].name );
+							mimes[index].value = strdup_printf ( iop[i].printf, value );
+							index++;
+						}
+					}
+					break;
 				case TYPE_OF_PARAM_PTR_STRING: {
 						char *ptr = *((char **) iop[i].value);
 						mimes[index].type = iop[i].type;
@@ -2720,6 +2731,53 @@ void tebot_method_forwardMessage ( tebot_handler_t *h, long long int chat_id,
 	fill_fields ( mimes, &index, iop, size_info_of_params );
 
 	char *data = tebot_request_get ( h, "forwardMessage", mimes, index );
+
+	for ( int i = 0; i < index; i++ ) {
+		free ( mimes[i].name );
+		free ( mimes[i].value );
+	}
+}
+
+void tebot_method_send_location ( tebot_handler_t *h,
+		long long int chat_id,
+		double latitude,
+		double longitude,
+		double horizontal_accuracy,
+		long long int live_period,
+		long long int heading,
+		long long int proximity_alert_radius,
+		char disable_notification,
+		long long int reply_to_message_id,
+		char allow_sending_without_reply,
+		void *reply_markup,
+		int type_of_reply_markup,
+		int layout[],
+		int size_layout
+		) {
+
+	struct mimes mimes[11];
+	int index = 0;
+
+	struct info_of_params iop[] = {
+		{ MIMES_TYPE_PARAM, "chat_id", (void **) &chat_id, "%lld", TYPE_OF_PARAM_INT },
+		{ MIMES_TYPE_PARAM, "latitude", (void **) &latitude, "%f", TYPE_OF_PARAM_FLOAT },
+		{ MIMES_TYPE_PARAM, "longitude", (void **) &longitude, "%f", TYPE_OF_PARAM_FLOAT },
+		{ MIMES_TYPE_PARAM, "horizontal_accuracy", (void **) &horizontal_accuracy, "%f", TYPE_OF_PARAM_FLOAT },
+		{ MIMES_TYPE_PARAM, "live_period", (void **) &live_period, "%lld", TYPE_OF_PARAM_INT },
+		{ MIMES_TYPE_PARAM, "heading", (void **) &heading, "%lld", TYPE_OF_PARAM_INT },
+		{ MIMES_TYPE_PARAM, "proximity_alert_radius", (void **) &proximity_alert_radius, "%lld", TYPE_OF_PARAM_INT },
+		{ MIMES_TYPE_PARAM, "reply_to_message_id", (void **) &reply_to_message_id, "%lld", TYPE_OF_PARAM_INT },
+		{ MIMES_TYPE_PARAM, "disable_notification", (void **) &disable_notification, "true", TYPE_OF_PARAM_BOOLEAN },
+		{ MIMES_TYPE_PARAM, "allow_sending_without_reply", (void **) &allow_sending_without_reply, "true", TYPE_OF_PARAM_BOOLEAN }
+	};
+
+	int size_info_of_params = sizeof ( iop ) / sizeof ( struct info_of_params );
+
+	fill_fields ( mimes, &index, iop, size_info_of_params );
+
+	parse_reply_markup ( mimes, &index, layout, size_layout, reply_markup, type_of_reply_markup );
+
+	char *data = tebot_request_get ( h, "sendLocation", mimes, index );
 
 	for ( int i = 0; i < index; i++ ) {
 		free ( mimes[i].name );
