@@ -661,6 +661,22 @@ void tebot_method_send_video ( tebot_handler_t *h, long long int chat_id,
 		int layout[],
 		int size_layout );
 
+void tebot_method_send_animation ( tebot_handler_t *h, long long int chat_id, 
+		char *animation,
+		char *caption,
+		char *parse_mode,
+		char *thumb,
+		long long int duration,
+		long long int width,
+		long long int height,
+		long long int reply_to_message_id,
+		char disable_notification,
+		char allow_sending_without_reply,
+		void *reply_markup,
+		int type_of_reply_markup,
+		int layout[],
+		int size_layout );
+
 void tebot_method_forwardMessage ( tebot_handler_t *h,
 		long long int chat_id, 
 		long long int from_chat_id, 
