@@ -780,6 +780,18 @@ void tebot_method_send_poll ( tebot_handler_t *h,
 		int size_layout
 		);
 
+void tebot_method_send_dice ( tebot_handler_t *h,
+		long long int chat_id,
+		char *emoji,
+		char disable_notification,
+		long long int reply_to_message_id,
+		char allow_sending_without_reply,
+		void *reply_markup,
+		int type_of_reply_markup,
+		int layout[],
+		int size_layout
+		);
+
 void tebot_method_forwardMessage ( tebot_handler_t *h,
 		long long int chat_id, 
 		long long int from_chat_id, 
