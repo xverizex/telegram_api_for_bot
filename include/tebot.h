@@ -792,6 +792,11 @@ void tebot_method_send_dice ( tebot_handler_t *h,
 		int size_layout
 		);
 
+void tebot_method_send_chat_action ( tebot_handler_t *h,
+		long long int chat_id,
+		char *action
+		);
+
 void tebot_method_forwardMessage ( tebot_handler_t *h,
 		long long int chat_id, 
 		long long int from_chat_id, 

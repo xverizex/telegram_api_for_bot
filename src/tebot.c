@@ -2971,6 +2971,31 @@ void tebot_method_send_dice ( tebot_handler_t *h,
 	}
 }
 
+void tebot_method_send_chat_action ( tebot_handler_t *h,
+		long long int chat_id,
+		char *action
+		) {
+
+	struct mimes mimes[2];
+	int index = 0;
+
+	struct info_of_params iop[] = {
+		{ MIMES_TYPE_PARAM, "chat_id", (void **) &chat_id, "%lld", TYPE_OF_PARAM_INT },
+		{ MIMES_TYPE_PARAM, "action", (void **) &action, "%s", TYPE_OF_PARAM_PTR_STRING }
+	};
+
+	int size_info_of_params = sizeof ( iop ) / sizeof ( struct info_of_params );
+
+	fill_fields ( mimes, &index, iop, size_info_of_params );
+
+	char *data = tebot_request_get ( h, "sendChatAction", mimes, index );
+
+	for ( int i = 0; i < index; i++ ) {
+		free ( mimes[i].name );
+		free ( mimes[i].value );
+	}
+}
+
 void tebot_method_copy_message ( tebot_handler_t *h,
 		long long int chat_id,
 		long long int from_chat_id,
