@@ -2233,6 +2233,33 @@ static void get_force_reply (
 		mimes[index].value = strdup ( json_object_to_json_string ( root ) );
 		json_object_put ( root );
 }
+	//parse_reply_makrup ( mimes, &index, layout, size_layout, reply_markup );
+static void parse_reply_markup ( struct mimes mimes[], int *ind, int *layout, int size_layout, void *reply_markup, int type_of_reply_markup ) {
+
+	int index = *ind;
+
+	if ( reply_markup && type_of_reply_markup == INLINE_KEYBOARD_MARKUP ) {
+		get_inline_keyboard_markup_json_value ( mimes, index, layout, size_layout, reply_markup );
+		index++;
+	}
+
+	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_MARKUP ) {
+		get_reply_keyboard_markup ( mimes, index, layout, size_layout, reply_markup );
+		index++;
+	}
+
+	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_REMOVE ) {
+		get_reply_keyboard_remove ( mimes, index, layout, size_layout, reply_markup );
+		index++;
+	}
+
+	if ( reply_markup && type_of_reply_markup == FORCE_REPLY ) {
+		get_force_reply ( mimes, index, layout, size_layout, reply_markup );
+		index++;
+	}
+
+	*ind = index;
+}
 
 static void fill_fields ( struct mimes mimes[], int *ind, struct info_of_params *iop, int size_info_of_params ) {
 	int index = *ind;
@@ -2305,26 +2332,7 @@ void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id,
 
 	fill_fields ( mimes, &index, iop, size_info_of_params );
 
-	if ( reply_markup && type_of_reply_markup == INLINE_KEYBOARD_MARKUP ) {
-		get_inline_keyboard_markup_json_value ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_MARKUP ) {
-		get_reply_keyboard_markup ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_REMOVE ) {
-		get_reply_keyboard_remove ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	if ( reply_markup && type_of_reply_markup == FORCE_REPLY ) {
-		get_force_reply ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-	
+	parse_reply_markup ( mimes, &index, layout, size_layout, reply_markup, type_of_reply_markup );
 
 	char *data = tebot_request_get ( h, "sendMessage", mimes, index );
 
@@ -2397,26 +2405,7 @@ void tebot_method_send_document ( tebot_handler_t *h, long long int chat_id,
 
 	fill_fields ( mimes, &index, iop, size_info_of_params );
 
-
-	if ( reply_markup && type_of_reply_markup == INLINE_KEYBOARD_MARKUP ) {
-		get_inline_keyboard_markup_json_value ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_MARKUP ) {
-		get_reply_keyboard_markup ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_REMOVE ) {
-		get_reply_keyboard_remove ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	if ( reply_markup && type_of_reply_markup == FORCE_REPLY ) {
-		get_force_reply ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
+	parse_reply_markup ( mimes, &index, layout, size_layout, reply_markup, type_of_reply_markup );
 
 	char *data = tebot_request_get ( h, "sendDocument", mimes, index );
 
@@ -2468,25 +2457,7 @@ void tebot_method_send_audio ( tebot_handler_t *h, long long int chat_id,
 
 	fill_fields ( mimes, &index, iop, size_info_of_params );
 
-	if ( reply_markup && type_of_reply_markup == INLINE_KEYBOARD_MARKUP ) {
-		get_inline_keyboard_markup_json_value ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_MARKUP ) {
-		get_reply_keyboard_markup ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_REMOVE ) {
-		get_reply_keyboard_remove ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	if ( reply_markup && type_of_reply_markup == FORCE_REPLY ) {
-		get_force_reply ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
+	parse_reply_markup ( mimes, &index, layout, size_layout, reply_markup, type_of_reply_markup );
 
 	char *data = tebot_request_get ( h, "sendAudio", mimes, index );
 
@@ -2530,27 +2501,9 @@ void tebot_method_send_voice ( tebot_handler_t *h, long long int chat_id,
 
 	fill_fields ( mimes, &index, iop, size_info_of_params );
 
-	if ( reply_markup && type_of_reply_markup == INLINE_KEYBOARD_MARKUP ) {
-		get_inline_keyboard_markup_json_value ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
+	parse_reply_markup ( mimes, &index, layout, size_layout, reply_markup, type_of_reply_markup );
 
-	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_MARKUP ) {
-		get_reply_keyboard_markup ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_REMOVE ) {
-		get_reply_keyboard_remove ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	if ( reply_markup && type_of_reply_markup == FORCE_REPLY ) {
-		get_force_reply ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	char *data = tebot_request_get ( h, "sendAudio", mimes, index );
+	char *data = tebot_request_get ( h, "sendVoice", mimes, index );
 
 	for ( int i = 0; i < index; i++ ) {
 		free ( mimes[i].name );
@@ -2596,27 +2549,9 @@ void tebot_method_send_video_note ( tebot_handler_t *h, long long int chat_id,
 
 	fill_fields ( mimes, &index, iop, size_info_of_params );
 
-	if ( reply_markup && type_of_reply_markup == INLINE_KEYBOARD_MARKUP ) {
-		get_inline_keyboard_markup_json_value ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
+	parse_reply_markup ( mimes, &index, layout, size_layout, reply_markup, type_of_reply_markup );
 
-	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_MARKUP ) {
-		get_reply_keyboard_markup ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_REMOVE ) {
-		get_reply_keyboard_remove ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	if ( reply_markup && type_of_reply_markup == FORCE_REPLY ) {
-		get_force_reply ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	char *data = tebot_request_get ( h, "sendAudio", mimes, index );
+	char *data = tebot_request_get ( h, "sendVideoNote", mimes, index );
 
 	for ( int i = 0; i < index; i++ ) {
 		free ( mimes[i].name );
@@ -2655,28 +2590,9 @@ void tebot_method_send_photo ( tebot_handler_t *h, long long int chat_id,
 
 	fill_fields ( mimes, &index, iop, size_info_of_params );
 
+	parse_reply_markup ( mimes, &index, layout, size_layout, reply_markup, type_of_reply_markup );
 
-	if ( reply_markup && type_of_reply_markup == INLINE_KEYBOARD_MARKUP ) {
-		get_inline_keyboard_markup_json_value ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_MARKUP ) {
-		get_reply_keyboard_markup ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_REMOVE ) {
-		get_reply_keyboard_remove ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	if ( reply_markup && type_of_reply_markup == FORCE_REPLY ) {
-		get_force_reply ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	char *data = tebot_request_get ( h, "sendDocument", mimes, index );
+	char *data = tebot_request_get ( h, "sendPhoto", mimes, index );
 
 	for ( int i = 0; i < index; i++ ) {
 		free ( mimes[i].name );
@@ -2725,28 +2641,9 @@ void tebot_method_send_video ( tebot_handler_t *h, long long int chat_id,
 
 	fill_fields ( mimes, &index, iop, size_info_of_params );
 
+	parse_reply_markup ( mimes, &index, layout, size_layout, reply_markup, type_of_reply_markup );
 
-	if ( reply_markup && type_of_reply_markup == INLINE_KEYBOARD_MARKUP ) {
-		get_inline_keyboard_markup_json_value ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_MARKUP ) {
-		get_reply_keyboard_markup ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_REMOVE ) {
-		get_reply_keyboard_remove ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	if ( reply_markup && type_of_reply_markup == FORCE_REPLY ) {
-		get_force_reply ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	char *data = tebot_request_get ( h, "sendDocument", mimes, index );
+	char *data = tebot_request_get ( h, "sendVideo", mimes, index );
 
 	for ( int i = 0; i < index; i++ ) {
 		free ( mimes[i].name );
@@ -2793,28 +2690,9 @@ void tebot_method_send_animation ( tebot_handler_t *h, long long int chat_id,
 
 	fill_fields ( mimes, &index, iop, size_info_of_params );
 
+	parse_reply_markup ( mimes, &index, layout, size_layout, reply_markup, type_of_reply_markup );
 
-	if ( reply_markup && type_of_reply_markup == INLINE_KEYBOARD_MARKUP ) {
-		get_inline_keyboard_markup_json_value ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_MARKUP ) {
-		get_reply_keyboard_markup ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_REMOVE ) {
-		get_reply_keyboard_remove ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	if ( reply_markup && type_of_reply_markup == FORCE_REPLY ) {
-		get_force_reply ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	char *data = tebot_request_get ( h, "sendDocument", mimes, index );
+	char *data = tebot_request_get ( h, "sendAnimation", mimes, index );
 
 	for ( int i = 0; i < index; i++ ) {
 		free ( mimes[i].name );
@@ -2882,25 +2760,7 @@ void tebot_method_copy_message ( tebot_handler_t *h,
 
 	fill_fields ( mimes, &index, iop, size_info_of_params );
 
-	if ( reply_markup && type_of_reply_markup == INLINE_KEYBOARD_MARKUP ) {
-		get_inline_keyboard_markup_json_value ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_MARKUP ) {
-		get_reply_keyboard_markup ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	if ( reply_markup && type_of_reply_markup == REPLY_KEYBOARD_REMOVE ) {
-		get_reply_keyboard_remove ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
-
-	if ( reply_markup && type_of_reply_markup == FORCE_REPLY ) {
-		get_force_reply ( mimes, index, layout, size_layout, reply_markup );
-		index++;
-	}
+	parse_reply_markup ( mimes, &index, layout, size_layout, reply_markup, type_of_reply_markup );
 
 	char *data = tebot_request_get ( h, "copyMessage", mimes, index );
 
