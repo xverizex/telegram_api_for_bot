@@ -1,4 +1,4 @@
-# simple telegram bot in C.
+# simple telegram api bot in C.
 
 зависимости:
 * libjson-c-dev
