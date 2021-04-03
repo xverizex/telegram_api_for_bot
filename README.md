@@ -64,3 +64,51 @@ int main ( int argc, char **argv ) {
 }
 ```
 
+
+пример как загрузить боту файл музыки от пользователя.
+```
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
+#include <tebot.h>
+#include <malloc.h>
+#include "header.h"
+
+
+int main ( int argc, char **argv ) {
+	
+	tebot_handler_t *h = tebot_init ( TOKEN, TEBOT_DEBUG_NOT_SHOW, NULL );
+
+	long long int offset = 0;
+
+	while ( 1 ) {
+		tebot_result_updated_t *t = tebot_method_get_updates ( h, offset, 20, 0, NULL );
+
+		for ( int i = 0; i < t->size; i++ ) {
+
+			if ( t->update[i]->message ) {
+				if ( t->update[i]->message->text ) {
+					printf ( "%s: %s\n", 
+							t->update[i]->message->from->username,
+							t->update[i]->message->text );
+				}
+
+				if ( t->update[i]->message->audio ) {
+					offset = tebot_method_get_file ( h, t->update[i]->message->audio->file_id,
+							t->update[i]->message->audio->file_name
+							);
+				}
+			}
+
+
+			if ( t->update[i]->update_id > 0 && t->update[i]->update_id > offset ) offset = t->update[i]->update_id + 1;
+		}
+
+		tebot_free_update ( h );
+
+		sleep ( 1 );
+	}
+
+}
+```

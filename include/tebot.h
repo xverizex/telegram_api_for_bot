@@ -8,6 +8,7 @@ extern "C" {
 #endif        // __cplusplus
 
 #define URL_API                       "https://api.telegram.org"
+#define URL_API_GET_FILE              "https://api.telegram.org/file"
 
 typedef struct tebot_user {
 	long long int id;
@@ -585,6 +586,8 @@ tebot_handler_t *tebot_init ( const char *token, const tebot_show_debug_enum sho
 tebot_user_t *tebot_method_get_me ( tebot_handler_t *handler );
 tebot_result_updated_t *tebot_method_get_updates ( tebot_handler_t *handler, const long long int offset,
 		const int limit, const int timeout, char **allowed_updates );
+
+long long int tebot_method_get_file ( tebot_handler_t *h, const char *file_id, const char *out_file_name );
 
 void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id, 
 		char *text,

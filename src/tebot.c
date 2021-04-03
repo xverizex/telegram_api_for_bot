@@ -13,6 +13,8 @@
 #define MIMES_TYPE_PARAM                   0
 #define MIMES_TYPE_ARRAY                   1
 #define MIMES_TYPE_FILE                    2
+#define MIMES_TYPE_OUT_FILE                3
+#define MIMES_TYPE_GET_FILE                4
 struct mimes {
 	int type;
 	char *name;
@@ -192,7 +194,10 @@ static size_t write_data_cb ( void *data, size_t size, size_t nmemb, void *st ) 
 
 static unsigned char *tebot_request_get ( tebot_handler_t *h, const char *method, struct mimes *mimes, const int size_mimes ) {
 
-	snprintf ( h->url_get, 4097, "%s/bot%s/%s", URL_API, h->token, method );
+	snprintf ( h->url_get, 4097, "%s/bot%s/%s", 
+			mimes[0].type == MIMES_TYPE_GET_FILE ? URL_API_GET_FILE : URL_API, 
+			h->token, 
+			mimes[0].type == MIMES_TYPE_GET_FILE ? mimes[0].value : method );
 
 	h->curl = curl_easy_init ( );
 	h->offset = 0;
@@ -202,6 +207,7 @@ static unsigned char *tebot_request_get ( tebot_handler_t *h, const char *method
 	curl_easy_setopt ( h->curl, CURLOPT_WRITEDATA, h );
 
 	curl_mime *mime = NULL;
+	if ( mimes[0].type != MIMES_TYPE_GET_FILE ) {
 
 	if ( mimes != NULL && size_mimes > 0 ) {
 		mime = curl_mime_init ( h->curl );
@@ -222,6 +228,8 @@ static unsigned char *tebot_request_get ( tebot_handler_t *h, const char *method
 		}
 	
 		curl_easy_setopt ( h->curl, CURLOPT_MIMEPOST, mime );
+	}
+
 	}
 
 	CURLcode res;
@@ -414,7 +422,6 @@ tebot_user_t *tebot_method_get_me ( tebot_handler_t *h ) {
 	if ( ret == -1 ) {
 		log_time ( LOG_LEVEL_NOTICE, h->log_file, h->show_debug, "failed to parse data: %s\n", data );
 	}
-	printf ( "%s\n", data );
 
 	return user;
 }
@@ -1924,6 +1931,7 @@ static void handler_chat_member_updated ( tebot_handler_t *h, void *data, json_o
 	}
 }
 
+
 tebot_result_updated_t *tebot_method_get_updates ( tebot_handler_t *h, const long long int offset, const int limit, 
 		const int timeout, char **allowed_updates ) {
 
@@ -3037,6 +3045,74 @@ void tebot_method_copy_message ( tebot_handler_t *h,
 		free ( mimes[i].name );
 		free ( mimes[i].value );
 	}
+}
+
+long long int tebot_method_get_file ( tebot_handler_t *h, const char *file_id, const char *out_file_name ) {
+	struct mimes mimes[1];
+	int index = 0;
+	h->offset = 0;
+	long long int update_id_int = 0;
+
+	struct info_of_params iop[] = {
+		{ MIMES_TYPE_PARAM, "file_id", (void **) &file_id, "%s", TYPE_OF_PARAM_PTR_STRING }
+	};
+
+	int size_info_of_params = sizeof ( iop ) / sizeof ( struct info_of_params );
+
+	fill_fields ( mimes, &index, iop, size_info_of_params );
+
+	char *data = tebot_request_get ( h, "getFile", mimes, index );
+
+	json_object *root = json_tokener_parse ( data );
+	if ( !root ) goto error;
+	json_object *ok = json_object_object_get ( root, "ok" );
+	const char *ok_string = json_object_get_string ( ok );
+	if ( !strncmp ( ok_string, "true", 5 ) ) {
+		h->offset = 0;
+		json_object *result = json_object_object_get ( root, "result" );
+		json_object *update_id = json_object_object_get ( result, "update_id" );
+		update_id_int = json_object_get_int64 ( update_id );
+		json_object *file_path = json_object_object_get ( result, "file_path" );
+		const char *file_path_string = json_object_get_string ( file_path );
+
+		struct mimes mimes[2];
+		int index = 0;
+
+		struct info_of_params iop[] = {
+			{ MIMES_TYPE_GET_FILE, "file_path", (void **) &file_path_string, "%s", TYPE_OF_PARAM_PTR_STRING }
+		};
+
+		int size_info_of_params = sizeof ( iop ) / sizeof ( struct info_of_params );
+
+		fill_fields ( mimes, &index, iop, size_info_of_params );
+
+		char *data = tebot_request_get ( h, "getFile", mimes, index );
+
+		const char *name_without_slash = strrchr ( out_file_name, '/' );
+		if ( !name_without_slash ) name_without_slash = out_file_name;
+		else name_without_slash++;
+
+		FILE *fp = fopen ( name_without_slash, "w" );
+
+		fwrite ( data, h->offset, 1, fp );
+
+		fclose ( fp );
+
+		for ( int i = 0; i < index; i++ ) {
+			free ( mimes[i].name );
+			free ( mimes[i].value );
+		}
+	}
+
+	json_object_put ( root );
+
+error:
+	for ( int i = 0; i < index; i++ ) {
+		free ( mimes[i].name );
+		free ( mimes[i].value );
+	}
+
+	return update_id_int;
 }
 
 tebot_message_entity_t **tebot_init_message_entity ( const int size ) {
