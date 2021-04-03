@@ -6,6 +6,7 @@
 
 поддерживаемые функции:
 * getMe
+* getFile
 * getUpdates
 * sendMessage
 * sendDocument
