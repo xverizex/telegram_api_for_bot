@@ -2343,6 +2343,7 @@ void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id,
 		char *parse_mode,
 		char disable_web_page_preview,
 		char disable_notification,
+		int protect_content,
 		long long int reply_to_message_id,
 		char allow_sending_without_reply,
 		void *reply_markup,
@@ -2363,7 +2364,8 @@ void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id,
 		{ MIMES_TYPE_PARAM, "disable_web_page_preview", (void **) &disable_web_page_preview, "true", TYPE_OF_PARAM_BOOLEAN },
 		{ MIMES_TYPE_PARAM, "disable_notification", (void **) &disable_notification, "true", TYPE_OF_PARAM_BOOLEAN },
 		{ MIMES_TYPE_PARAM, "allow_sending_without_reply", (void **) &allow_sending_without_reply, "true", TYPE_OF_PARAM_BOOLEAN },
-		{ MIMES_TYPE_PARAM, "reply_to_message_id", (void **) &reply_to_message_id, "%lld", TYPE_OF_PARAM_INT }
+		{ MIMES_TYPE_PARAM, "reply_to_message_id", (void **) &reply_to_message_id, "%lld", TYPE_OF_PARAM_INT },
+		{ MIMES_TYPE_PARAM, "protect_content", (void **) &protect_content, "true", TYPE_OF_PARAM_BOOLEAN }
 	};
 
 	int size_info_of_params = sizeof ( iop ) / sizeof ( struct info_of_params );
@@ -2416,6 +2418,7 @@ void tebot_method_send_document ( tebot_handler_t *h, long long int chat_id,
 		char *parse_mode,
 		char disable_content_type_detection,
 		char disable_notification,
+		int protect_content,
 		const long long int reply_to_message_id,
 		char allow_sending_without_reply,
 		void *reply_markup,
@@ -2436,7 +2439,8 @@ void tebot_method_send_document ( tebot_handler_t *h, long long int chat_id,
 		{ MIMES_TYPE_PARAM, "disable_content_type_detection", (void **) &disable_content_type_detection, "true", TYPE_OF_PARAM_BOOLEAN },
 		{ MIMES_TYPE_PARAM, "disable_notification", (void **) &disable_notification, "true", TYPE_OF_PARAM_BOOLEAN },
 		{ MIMES_TYPE_PARAM, "allow_sending_without_reply", (void **) &allow_sending_without_reply, "true", TYPE_OF_PARAM_BOOLEAN },
-		{ MIMES_TYPE_PARAM, "reply_to_message_id", (void **) &reply_to_message_id, "%lld", TYPE_OF_PARAM_INT }
+		{ MIMES_TYPE_PARAM, "reply_to_message_id", (void **) &reply_to_message_id, "%lld", TYPE_OF_PARAM_INT },
+		{ MIMES_TYPE_PARAM, "protect_content", (void **) &protect_content, "true", TYPE_OF_PARAM_BOOLEAN }
 	};
 
 	int size_info_of_params = sizeof ( iop ) / sizeof ( struct info_of_params );
@@ -2464,6 +2468,7 @@ void tebot_method_send_audio ( tebot_handler_t *h, long long int chat_id,
 		char *parse_mode,
 		char disable_content_type_detection,
 		char disable_notification,
+		int protect_content,
 		const long long int reply_to_message_id,
 		char allow_sending_without_reply,
 		void *reply_markup,
@@ -2485,7 +2490,8 @@ void tebot_method_send_audio ( tebot_handler_t *h, long long int chat_id,
 		{ MIMES_TYPE_PARAM, "disable_notification", (void **) &disable_notification, "true", TYPE_OF_PARAM_BOOLEAN },
 		{ MIMES_TYPE_PARAM, "reply_to_message_id", (void **) &reply_to_message_id, "%lld", TYPE_OF_PARAM_INT },
 		{ MIMES_TYPE_PARAM, "allow_sending_without_reply", (void **) &allow_sending_without_reply, "true", TYPE_OF_PARAM_BOOLEAN },
-		{ MIMES_TYPE_FILE, "audio", (void **) &audio, "%s", TYPE_OF_PARAM_PTR_STRING }
+		{ MIMES_TYPE_FILE, "audio", (void **) &audio, "%s", TYPE_OF_PARAM_PTR_STRING },
+		{ MIMES_TYPE_PARAM, "protect_content", (void **) &protect_content, "true", TYPE_OF_PARAM_BOOLEAN }
 	};
 
 	struct mimes mimes[13];
@@ -2511,6 +2517,7 @@ void tebot_method_send_voice ( tebot_handler_t *h, long long int chat_id,
 		char *caption,
 		char *parse_mode,
 		char disable_notification,
+		int protect_content,
 		const long long int reply_to_message_id,
 		char allow_sending_without_reply,
 		void *reply_markup,
@@ -2529,7 +2536,8 @@ void tebot_method_send_voice ( tebot_handler_t *h, long long int chat_id,
 		{ MIMES_TYPE_PARAM, "disable_notification", (void **) &disable_notification, "true", TYPE_OF_PARAM_BOOLEAN },
 		{ MIMES_TYPE_PARAM, "reply_to_message_id", (void **) &reply_to_message_id, "%lld", TYPE_OF_PARAM_INT },
 		{ MIMES_TYPE_PARAM, "allow_sending_without_reply", (void **) &allow_sending_without_reply, "true", TYPE_OF_PARAM_BOOLEAN },
-		{ MIMES_TYPE_FILE, "voice", (void **) &voice, "%s", TYPE_OF_PARAM_PTR_STRING }
+		{ MIMES_TYPE_FILE, "voice", (void **) &voice, "%s", TYPE_OF_PARAM_PTR_STRING },
+		{ MIMES_TYPE_PARAM, "protect_content", (void **) &protect_content, "true", TYPE_OF_PARAM_BOOLEAN }
 	};
 
 	struct mimes mimes[9];
@@ -2557,6 +2565,7 @@ void tebot_method_send_video_note ( tebot_handler_t *h, long long int chat_id,
 		long long int duration,
 		long long int length,
 		char disable_notification,
+		int protect_content,
 		const long long int reply_to_message_id,
 		char allow_sending_without_reply,
 		void *reply_markup,
@@ -2577,7 +2586,8 @@ void tebot_method_send_video_note ( tebot_handler_t *h, long long int chat_id,
 		{ MIMES_TYPE_PARAM, "disable_notification", (void **) &disable_notification, "true", TYPE_OF_PARAM_BOOLEAN },
 		{ MIMES_TYPE_PARAM, "reply_to_message_id", (void **) &reply_to_message_id, "%lld", TYPE_OF_PARAM_INT },
 		{ MIMES_TYPE_PARAM, "allow_sending_without_reply", (void **) &allow_sending_without_reply, "true", TYPE_OF_PARAM_BOOLEAN },
-		{ MIMES_TYPE_FILE, "video_note", (void **) &video_note, "%s", TYPE_OF_PARAM_PTR_STRING }
+		{ MIMES_TYPE_FILE, "video_note", (void **) &video_note, "%s", TYPE_OF_PARAM_PTR_STRING },
+		{ MIMES_TYPE_PARAM, "protect_content", (void **) &protect_content, "true", TYPE_OF_PARAM_BOOLEAN }
 	};
 
 	struct mimes mimes[11];
@@ -2602,6 +2612,7 @@ void tebot_method_send_photo ( tebot_handler_t *h, long long int chat_id,
 		char *caption,
 		char *parse_mode,
 		char disable_notification,
+		int protect_content,
 		const long long int reply_to_message_id,
 		char allow_sending_without_reply,
 		void *reply_markup,
@@ -2621,7 +2632,8 @@ void tebot_method_send_photo ( tebot_handler_t *h, long long int chat_id,
 		{ MIMES_TYPE_PARAM, "caption", (void **) &caption, "%s", TYPE_OF_PARAM_PTR_STRING },
 		{ MIMES_TYPE_PARAM, "disable_notification", (void **) &disable_notification, "true", TYPE_OF_PARAM_BOOLEAN },
 		{ MIMES_TYPE_PARAM, "allow_sending_without_reply", (void **) &allow_sending_without_reply, "true", TYPE_OF_PARAM_BOOLEAN },
-		{ MIMES_TYPE_PARAM, "reply_to_message_id", (void **) &reply_to_message_id, "%lld", TYPE_OF_PARAM_INT }
+		{ MIMES_TYPE_PARAM, "reply_to_message_id", (void **) &reply_to_message_id, "%lld", TYPE_OF_PARAM_INT },
+		{ MIMES_TYPE_PARAM, "protect_content", (void **) &protect_content, "true", TYPE_OF_PARAM_BOOLEAN }
 	};
 
 	int size_info_of_params = sizeof ( iop ) / sizeof ( struct info_of_params );
@@ -2648,6 +2660,7 @@ void tebot_method_send_video ( tebot_handler_t *h, long long int chat_id,
 		long long int height,
 		long long int reply_to_message_id,
 		char disable_notification,
+		int protect_content,
 		char supports_streaming,
 		char allow_sending_without_reply,
 		void *reply_markup,
@@ -2672,7 +2685,8 @@ void tebot_method_send_video ( tebot_handler_t *h, long long int chat_id,
 		{ MIMES_TYPE_PARAM, "disable_notification", (void **) &disable_notification, "true", TYPE_OF_PARAM_BOOLEAN },
 		{ MIMES_TYPE_PARAM, "supports_streaming", (void **) &supports_streaming, "true", TYPE_OF_PARAM_BOOLEAN },
 		{ MIMES_TYPE_PARAM, "allow_sending_without_reply", (void **) &allow_sending_without_reply, "true", TYPE_OF_PARAM_BOOLEAN },
-		{ MIMES_TYPE_PARAM, "reply_to_message_id", (void **) &reply_to_message_id, "%lld", TYPE_OF_PARAM_INT }
+		{ MIMES_TYPE_PARAM, "reply_to_message_id", (void **) &reply_to_message_id, "%lld", TYPE_OF_PARAM_INT },
+		{ MIMES_TYPE_PARAM, "protect_content", (void **) &protect_content, "true", TYPE_OF_PARAM_BOOLEAN }
 	};
 
 	int size_info_of_params = sizeof ( iop ) / sizeof ( struct info_of_params );
@@ -2699,6 +2713,7 @@ void tebot_method_send_animation ( tebot_handler_t *h, long long int chat_id,
 		long long int height,
 		long long int reply_to_message_id,
 		char disable_notification,
+		int protect_content,
 		char allow_sending_without_reply,
 		void *reply_markup,
 		int type_of_reply_markup,
@@ -2721,7 +2736,8 @@ void tebot_method_send_animation ( tebot_handler_t *h, long long int chat_id,
 		{ MIMES_TYPE_PARAM, "caption", (void **) &caption, "%s", TYPE_OF_PARAM_PTR_STRING },
 		{ MIMES_TYPE_PARAM, "disable_notification", (void **) &disable_notification, "true", TYPE_OF_PARAM_BOOLEAN },
 		{ MIMES_TYPE_PARAM, "allow_sending_without_reply", (void **) &allow_sending_without_reply, "true", TYPE_OF_PARAM_BOOLEAN },
-		{ MIMES_TYPE_PARAM, "reply_to_message_id", (void **) &reply_to_message_id, "%lld", TYPE_OF_PARAM_INT }
+		{ MIMES_TYPE_PARAM, "reply_to_message_id", (void **) &reply_to_message_id, "%lld", TYPE_OF_PARAM_INT },
+		{ MIMES_TYPE_PARAM, "protect_content", (void **) &protect_content, "true", TYPE_OF_PARAM_BOOLEAN }
 	};
 
 	int size_info_of_params = sizeof ( iop ) / sizeof ( struct info_of_params );
@@ -2774,6 +2790,7 @@ void tebot_method_send_location ( tebot_handler_t *h,
 		long long int heading,
 		long long int proximity_alert_radius,
 		char disable_notification,
+		int protect_content,
 		long long int reply_to_message_id,
 		char allow_sending_without_reply,
 		void *reply_markup,
@@ -2795,7 +2812,8 @@ void tebot_method_send_location ( tebot_handler_t *h,
 		{ MIMES_TYPE_PARAM, "proximity_alert_radius", (void **) &proximity_alert_radius, "%lld", TYPE_OF_PARAM_INT },
 		{ MIMES_TYPE_PARAM, "reply_to_message_id", (void **) &reply_to_message_id, "%lld", TYPE_OF_PARAM_INT },
 		{ MIMES_TYPE_PARAM, "disable_notification", (void **) &disable_notification, "true", TYPE_OF_PARAM_BOOLEAN },
-		{ MIMES_TYPE_PARAM, "allow_sending_without_reply", (void **) &allow_sending_without_reply, "true", TYPE_OF_PARAM_BOOLEAN }
+		{ MIMES_TYPE_PARAM, "allow_sending_without_reply", (void **) &allow_sending_without_reply, "true", TYPE_OF_PARAM_BOOLEAN },
+		{ MIMES_TYPE_PARAM, "protect_content", (void **) &protect_content, "true", TYPE_OF_PARAM_BOOLEAN }
 	};
 
 	int size_info_of_params = sizeof ( iop ) / sizeof ( struct info_of_params );
@@ -2823,6 +2841,7 @@ void tebot_method_send_venue ( tebot_handler_t *h,
 		char *google_place_id,
 		char *google_place_type,
 		char disable_notification,
+		int protect_content,
 		long long int reply_to_message_id,
 		char allow_sending_without_reply,
 		void *reply_markup,
@@ -2845,7 +2864,8 @@ void tebot_method_send_venue ( tebot_handler_t *h,
 		{ MIMES_TYPE_PARAM, "google_place_type", (void **) &google_place_type, "%s", TYPE_OF_PARAM_PTR_STRING },
 		{ MIMES_TYPE_PARAM, "reply_to_message_id", (void **) &reply_to_message_id, "%lld", TYPE_OF_PARAM_INT },
 		{ MIMES_TYPE_PARAM, "disable_notification", (void **) &disable_notification, "true", TYPE_OF_PARAM_BOOLEAN },
-		{ MIMES_TYPE_PARAM, "allow_sending_without_reply", (void **) &allow_sending_without_reply, "true", TYPE_OF_PARAM_BOOLEAN }
+		{ MIMES_TYPE_PARAM, "allow_sending_without_reply", (void **) &allow_sending_without_reply, "true", TYPE_OF_PARAM_BOOLEAN },
+		{ MIMES_TYPE_PARAM, "protect_content", (void **) &protect_content, "true", TYPE_OF_PARAM_BOOLEAN }
 	};
 
 	int size_info_of_params = sizeof ( iop ) / sizeof ( struct info_of_params );
@@ -2869,6 +2889,7 @@ void tebot_method_send_contact ( tebot_handler_t *h,
 		char *last_name,
 		char *vcard,
 		char disable_notification,
+		int protect_content,
 		long long int reply_to_message_id,
 		char allow_sending_without_reply,
 		void *reply_markup,
@@ -2888,7 +2909,8 @@ void tebot_method_send_contact ( tebot_handler_t *h,
 		{ MIMES_TYPE_PARAM, "vcard", (void **) &vcard, "%s", TYPE_OF_PARAM_PTR_STRING },
 		{ MIMES_TYPE_PARAM, "reply_to_message_id", (void **) &reply_to_message_id, "%lld", TYPE_OF_PARAM_INT },
 		{ MIMES_TYPE_PARAM, "disable_notification", (void **) &disable_notification, "true", TYPE_OF_PARAM_BOOLEAN },
-		{ MIMES_TYPE_PARAM, "allow_sending_without_reply", (void **) &allow_sending_without_reply, "true", TYPE_OF_PARAM_BOOLEAN }
+		{ MIMES_TYPE_PARAM, "allow_sending_without_reply", (void **) &allow_sending_without_reply, "true", TYPE_OF_PARAM_BOOLEAN },
+		{ MIMES_TYPE_PARAM, "protect_content", (void **) &protect_content, "true", TYPE_OF_PARAM_BOOLEAN }
 	};
 
 	int size_info_of_params = sizeof ( iop ) / sizeof ( struct info_of_params );
@@ -2919,6 +2941,7 @@ void tebot_method_send_poll ( tebot_handler_t *h,
 		long long close_date,
 		char is_closed,
 		char disable_notification,
+		int protect_content,
 		long long int reply_to_message_id,
 		char allow_sending_without_reply,
 		void *reply_markup,
@@ -2944,7 +2967,8 @@ void tebot_method_send_poll ( tebot_handler_t *h,
 		{ MIMES_TYPE_PARAM, "is_closed", (void **) &is_closed, "true", TYPE_OF_PARAM_BOOLEAN },
 		{ MIMES_TYPE_PARAM, "reply_to_message_id", (void **) &reply_to_message_id, "%lld", TYPE_OF_PARAM_INT },
 		{ MIMES_TYPE_PARAM, "disable_notification", (void **) &disable_notification, "true", TYPE_OF_PARAM_BOOLEAN },
-		{ MIMES_TYPE_PARAM, "allow_sending_without_reply", (void **) &allow_sending_without_reply, "true", TYPE_OF_PARAM_BOOLEAN }
+		{ MIMES_TYPE_PARAM, "allow_sending_without_reply", (void **) &allow_sending_without_reply, "true", TYPE_OF_PARAM_BOOLEAN },
+		{ MIMES_TYPE_PARAM, "protect_content", (void **) &protect_content, "true", TYPE_OF_PARAM_BOOLEAN }
 	};
 
 	int size_info_of_params = sizeof ( iop ) / sizeof ( struct info_of_params );
@@ -2965,6 +2989,7 @@ void tebot_method_send_dice ( tebot_handler_t *h,
 		long long int chat_id,
 		char *emoji,
 		char disable_notification,
+		int protect_content,
 		long long int reply_to_message_id,
 		char allow_sending_without_reply,
 		void *reply_markup,
@@ -2981,7 +3006,8 @@ void tebot_method_send_dice ( tebot_handler_t *h,
 		{ MIMES_TYPE_PARAM, "emoji", (void **) &emoji, "%s", TYPE_OF_PARAM_PTR_STRING },
 		{ MIMES_TYPE_PARAM, "reply_to_message_id", (void **) &reply_to_message_id, "%lld", TYPE_OF_PARAM_INT },
 		{ MIMES_TYPE_PARAM, "disable_notification", (void **) &disable_notification, "true", TYPE_OF_PARAM_BOOLEAN },
-		{ MIMES_TYPE_PARAM, "allow_sending_without_reply", (void **) &allow_sending_without_reply, "true", TYPE_OF_PARAM_BOOLEAN }
+		{ MIMES_TYPE_PARAM, "allow_sending_without_reply", (void **) &allow_sending_without_reply, "true", TYPE_OF_PARAM_BOOLEAN },
+		{ MIMES_TYPE_PARAM, "protect_content", (void **) &protect_content, "true", TYPE_OF_PARAM_BOOLEAN }
 	};
 
 	int size_info_of_params = sizeof ( iop ) / sizeof ( struct info_of_params );
@@ -3030,6 +3056,7 @@ void tebot_method_copy_message ( tebot_handler_t *h,
 		char *caption,
 		char *parse_mode,
 		char disable_notification,
+		int protect_content,
 		long long int reply_to_message_id,
 		char allow_sending_without_reply,
 		void *reply_markup,
@@ -3049,7 +3076,8 @@ void tebot_method_copy_message ( tebot_handler_t *h,
 		{ MIMES_TYPE_PARAM, "caption", (void **) &caption, "%s", TYPE_OF_PARAM_PTR_STRING },
 		{ MIMES_TYPE_PARAM, "parse_mode", (void **) &parse_mode, "%s", TYPE_OF_PARAM_PTR_STRING },
 		{ MIMES_TYPE_PARAM, "disable_notification", (void **) &disable_notification, "true", TYPE_OF_PARAM_BOOLEAN },
-		{ MIMES_TYPE_PARAM, "allow_sending_without_reply", (void **) &allow_sending_without_reply, "true", TYPE_OF_PARAM_BOOLEAN }
+		{ MIMES_TYPE_PARAM, "allow_sending_without_reply", (void **) &allow_sending_without_reply, "true", TYPE_OF_PARAM_BOOLEAN },
+		{ MIMES_TYPE_PARAM, "protect_content", (void **) &protect_content, "true", TYPE_OF_PARAM_BOOLEAN }
 	};
 
 	int size_info_of_params = sizeof ( iop ) / sizeof ( struct info_of_params );
