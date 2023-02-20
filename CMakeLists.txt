@@ -19,3 +19,5 @@ target_link_libraries (tebot PUBLIC
 	${JSON_LIBRARIES}
 	${CURL_LIBRARIES}
 	)
+
+install (TARGETS tebot)
