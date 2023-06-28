@@ -608,251 +608,295 @@ tebot_result_updated_t *tebot_method_get_updates ( tebot_handler_t *handler, con
 
 long long int tebot_method_get_file ( tebot_handler_t *h, const char *file_id, const char *out_file_name );
 
-void tebot_method_send_message ( tebot_handler_t *h, long long int chat_id, 
-		char *text,
-		char *parse_mode,
-		char disable_web_page_preview,
-		char disable_notification,
-		int protect_content,
-		long long int reply_to_message_id,
-		char allow_sending_without_reply,
-		void *reply_markup,
-		int type_of_reply_markup,
-		int layout[],
-		int size_layout
-		);
+struct tebot_send_message_t {
+	long long int chat_id;
+	char *text;
+	char *parse_mode;
+	char disable_web_page_preview;
+	char disable_notification;
+	int protect_content;
+	long long int reply_to_message_id;
+	char allow_sending_without_reply;
+	void *reply_markup;
+	int type_of_reply_markup;
+	int *layout;
+	int size_layout;
+};
 
-void tebot_method_send_document ( tebot_handler_t *h, long long int chat_id, 
-		char *document,
-		char *thumb,
-		char *caption,
-		char *parse_mode,
-		char disable_content_type_detection,
-		char disable_notification,
-		int protect_content,
-		const long long int reply_to_message_id,
-		char allow_sending_without_reply,
-		void *reply_markup,
-		int type_of_reply_markup,
-		int layout[],
-		int size_layout
-		);
+void tebot_method_send_message ( tebot_handler_t *h, struct tebot_send_message_t *dt);
 
-void tebot_method_send_audio ( tebot_handler_t *h, long long int chat_id, 
-		char *audio,
-		char *thumb,
-		long long int duration,
-		char *performer,
-		char *title,
-		char *caption,
-		char *parse_mode,
-		char disable_content_type_detection,
-		char disable_notification,
-		int protect_content,
-		const long long int reply_to_message_id,
-		char allow_sending_without_reply,
-		void *reply_markup,
-		int type_of_reply_markup,
-		int layout[],
-		int size_layout
-		);
+struct tebot_send_document_t {
+	long long int chat_id;
+	char *document;
+	char *thumb;
+	char *caption;
+	char *parse_mode;
+	char disable_content_type_detection;
+	char disable_notification;
+	int protect_content;
+	long long int reply_to_message_id;
+	char allow_sending_without_reply;
+	void *reply_markup;
+	int type_of_reply_markup;
+	int *layout;
+	int size_layout;
+};
 
-void tebot_method_send_photo ( tebot_handler_t *h, long long int chat_id, 
-		char *photo,
-		char *caption,
-		char *parse_mode,
-		char disable_notification,
-		int protect_content,
-		const long long int reply_to_message_id,
-		char allow_sending_without_reply,
-		void *reply_markup,
-		int type_of_reply_markup,
-		int layout[],
-		int size_layout );
+void tebot_method_send_document ( tebot_handler_t *h, struct tebot_send_document_t *dt);
 
-void tebot_method_send_video ( tebot_handler_t *h, long long int chat_id, 
-		char *video,
-		char *caption,
-		char *parse_mode,
-		char *thumb,
-		long long int duration,
-		long long int width,
-		long long int height,
-		long long int reply_to_message_id,
-		char disable_notification,
-		int protect_content,
-		char supports_streaming,
-		char allow_sending_without_reply,
-		void *reply_markup,
-		int type_of_reply_markup,
-		int layout[],
-		int size_layout );
+struct tebot_send_audio_t {
+	long long int chat_id;
+	char *audio;
+	char *thumb;
+	long long int duration;
+	char *performer;
+	char *title;
+	char *caption;
+	char *parse_mode;
+	char disable_content_type_detection;
+	char disable_notification;
+	int protect_content;
+	long long int reply_to_message_id;
+	char allow_sending_without_reply;
+	void *reply_markup;
+	int type_of_reply_markup;
+	int *layout;
+	int size_layout;
+};
 
-void tebot_method_send_animation ( tebot_handler_t *h, long long int chat_id, 
-		char *animation,
-		char *caption,
-		char *parse_mode,
-		char *thumb,
-		long long int duration,
-		long long int width,
-		long long int height,
-		long long int reply_to_message_id,
-		char disable_notification,
-		int protect_content,
-		char allow_sending_without_reply,
-		void *reply_markup,
-		int type_of_reply_markup,
-		int layout[],
-		int size_layout );
+void tebot_method_send_audio ( tebot_handler_t *h, struct tebot_send_audio_t *dt);
 
-void tebot_method_send_voice ( tebot_handler_t *h, long long int chat_id, 
-		char *voice,
-		long long int duration,
-		char *caption,
-		char *parse_mode,
-		char disable_notification,
-		int protect_content,
-		const long long int reply_to_message_id,
-		char allow_sending_without_reply,
-		void *reply_markup,
-		int type_of_reply_markup,
-		int layout[],
-		int size_layout
-		);
+struct tebot_send_photo_t {
+	long long int chat_id;
+	char *photo;
+	char *caption;
+	char *parse_mode;
+	char disable_notification;
+	int protect_content;
+	long long int reply_to_message_id;
+	char allow_sending_without_reply;
+	void *reply_markup;
+	int type_of_reply_markup;
+	int *layout;
+	int size_layout;
+};
 
-void tebot_method_send_video_note ( tebot_handler_t *h, long long int chat_id, 
-		char *video_note,
-		char *caption,
-		char *parse_mode,
-		char *thumb,
-		long long int duration,
-		long long int length,
-		char disable_notification,
-		int protect_content,
-		const long long int reply_to_message_id,
-		char allow_sending_without_reply,
-		void *reply_markup,
-		int type_of_reply_markup,
-		int layout[],
-		int size_layout
-		);
+void tebot_method_send_photo ( tebot_handler_t *h, struct tebot_send_photo_t *dt);
 
-void tebot_method_send_location ( tebot_handler_t *h,
-		long long int chat_id,
-		double latitude,
-		double longitude,
-		double horizontal_accuracy,
-		long long int live_period,
-		long long int heading,
-		long long int proximity_alert_radius,
-		char disable_notification,
-		int protect_content,
-		long long int reply_to_message_id,
-		char allow_sending_without_reply,
-		void *reply_markup,
-		int type_of_reply_markup,
-		int layout[],
-		int size_layout
-		);
+struct tebot_send_video_t {
+	long long int chat_id;
+	char *video;
+	char *caption;
+	char *parse_mode;
+	char *thumb;
+	long long int duration;
+	long long int width;
+	long long int height;
+	long long int reply_to_message_id;
+	char disable_notification;
+	int protect_content;
+	char supports_streaming;
+	char allow_sending_without_reply;
+	void *reply_markup;
+	int type_of_reply_markup;
+	int *layout;
+	int size_layout;
+};
 
-void tebot_method_send_venue ( tebot_handler_t *h,
-		long long int chat_id,
-		double latitude,
-		double longitude,
-		char *title,
-		char *address,
-		char *foursquare_id,
-		char *foursquare_type,
-		char *google_place_id,
-		char *google_place_type,
-		char disable_notification,
-		int protect_content,
-		long long int reply_to_message_id,
-		char allow_sending_without_reply,
-		void *reply_markup,
-		int type_of_reply_markup,
-		int layout[],
-		int size_layout
-		);
+void tebot_method_send_video ( tebot_handler_t *h, struct tebot_send_video_t *dt);
 
-void tebot_method_send_contact ( tebot_handler_t *h,
-		long long int chat_id,
-		char *phone_number,
-		char *first_name,
-		char *last_name,
-		char *vcard,
-		char disable_notification,
-		int protect_content,
-		long long int reply_to_message_id,
-		char allow_sending_without_reply,
-		void *reply_markup,
-		int type_of_reply_markup,
-		int layout[],
-		int size_layout
-		);
+struct tebot_send_animation_t {
+	long long int chat_id;
+	char *animation;
+	char *caption;
+	char *parse_mode;
+	char *thumb;
+	long long int duration;
+	long long int width;
+	long long int height;
+	long long int reply_to_message_id;
+	char disable_notification;
+	int protect_content;
+	char allow_sending_without_reply;
+	void *reply_markup;
+	int type_of_reply_markup;
+	int *layout;
+	int size_layout;
+};
 
-void tebot_method_send_poll ( tebot_handler_t *h,
-		long long int chat_id,
-		char *question,
-		char *options,
-		char is_anonymous,
-		char *type,
-		char allows_multiple_answers,
-		long long int correct_option_id,
-		char *explanation,
-		char *explanation_parse_mode,
-		long long int open_period,
-		long long close_date,
-		char is_closed,
-		char disable_notification,
-		int protect_content,
-		long long int reply_to_message_id,
-		char allow_sending_without_reply,
-		void *reply_markup,
-		int type_of_reply_markup,
-		int layout[],
-		int size_layout
-		);
+void tebot_method_send_animation ( tebot_handler_t *h, struct tebot_send_animation_t *dt);
 
-void tebot_method_send_dice ( tebot_handler_t *h,
-		long long int chat_id,
-		char *emoji,
-		char disable_notification,
-		int protect_content,
-		long long int reply_to_message_id,
-		char allow_sending_without_reply,
-		void *reply_markup,
-		int type_of_reply_markup,
-		int layout[],
-		int size_layout
-		);
+struct tebot_send_voice_t {
+	long long int chat_id;
+	char *voice;
+	long long int duration;
+	char *caption;
+	char *parse_mode;
+	int disable_notification;
+	int protect_content;
+	long long int reply_to_message_id;
+	char allow_sending_without_reply;
+	void *reply_markup;
+	int type_of_reply_markup;
+	int *layout;
+	int size_layout;
+};
 
-void tebot_method_send_chat_action ( tebot_handler_t *h,
-		long long int chat_id,
-		char *action
-		);
+void tebot_method_send_voice ( tebot_handler_t *h, struct tebot_send_voice_t *dt);
 
-void tebot_method_forwardMessage ( tebot_handler_t *h,
-		long long int chat_id, 
-		long long int from_chat_id, 
-		char disable_notification, 
-		long long int message_id );
+struct tebot_send_video_note_t {
+	long long int chat_id;
+	char *video_note;
+	char *caption;
+	char *parse_mode;
+	char *thumb;
+	long long int duration;
+	long long int length;
+	char disable_notification;
+	int protect_content;
+	long long int reply_to_message_id;
+	char allow_sending_without_reply;
+	void *reply_markup;
+	int type_of_reply_markup;
+	int *layout;
+	int size_layout;
+};
 
-void tebot_method_copy_message ( tebot_handler_t *h,
-		long long int chat_id,
-		long long int from_chat_id,
-		long long int message_id,
-		char *caption,
-		char *parse_mode,
-		char disable_notification,
-		int protect_content,
-		long long int reply_to_message_id,
-		char allow_sending_without_reply,
-		void *reply_markup,
-		int type_reply_markup,
-		int layout[],
-		int size_layout
-		);
+void tebot_method_send_video_note ( tebot_handler_t *h, struct tebot_send_video_note_t *dt);
+
+struct tebot_send_location_t {
+	long long int chat_id;
+	double latitude;
+	double longitude;
+	double horizontal_accuracy;
+	long long int live_period;
+	long long int heading;
+	long long int proximity_alert_radius;
+	char disable_notification;
+	int protect_content;
+	long long int reply_to_message_id;
+	char allow_sending_without_reply;
+	void *reply_markup;
+	int type_of_reply_markup;
+	int *layout;
+	int size_layout;
+};
+
+void tebot_method_send_location ( tebot_handler_t *h, struct tebot_send_location_t *dt);
+
+struct tebot_send_venue_t {
+	long long int chat_id;
+	double latitude;
+	double longitude;
+	char *title;
+	char *address;
+	char *foursquare_id;
+	char *foursquare_type;
+	char *google_place_id;
+	char *google_place_type;
+	char disable_notification;
+	int protect_content;
+	long long int reply_to_message_id;
+	char allow_sending_without_reply;
+	void *reply_markup;
+	int type_of_reply_markup;
+	int *layout;
+	int size_layout;
+};
+
+void tebot_method_send_venue ( tebot_handler_t *h, struct tebot_send_venue_t *dt);
+
+struct tebot_send_contact_t {
+	long long int chat_id;
+	char *phone_number;
+	char *first_name;
+	char *last_name;
+	char *vcard;
+	char disable_notification;
+	int protect_content;
+	long long int reply_to_message_id;
+	char allow_sending_without_reply;
+	void *reply_markup;
+	int type_of_reply_markup;
+	int *layout;
+	int size_layout;
+};
+
+void tebot_method_send_contact ( tebot_handler_t *h, struct tebot_send_contact_t *dt);
+
+struct tebot_send_poll_t {
+	long long int chat_id;
+	char *question;
+	char *options;
+	char is_anonymous;
+	char *type;
+	char allows_multiple_answers;
+	long long int correct_option_id;
+	char *explanation;
+	char *explanation_parse_mode;
+	long long int open_period;
+	long long close_date;
+	char is_closed;
+	char disable_notification;
+	int protect_content;
+	long long int reply_to_message_id;
+	char allow_sending_without_reply;
+	void *reply_markup;
+	int type_of_reply_markup;
+	int *layout;
+	int size_layout;
+};
+
+void tebot_method_send_poll ( tebot_handler_t *h, struct tebot_send_poll_t *dt);
+
+struct tebot_send_dice_t {
+	long long int chat_id;
+	char *emoji;
+	char disable_notification;
+	int protect_content;
+	long long int reply_to_message_id;
+	char allow_sending_without_reply;
+	void *reply_markup;
+	int type_of_reply_markup;
+	int *layout;
+	int size_layout;
+};
+
+void tebot_method_send_dice ( tebot_handler_t *h, struct tebot_send_dice_t *dt);
+
+struct tebot_send_chat_action_t {
+	long long int chat_id;
+	char *action;
+};
+
+void tebot_method_send_chat_action ( tebot_handler_t *h, struct tebot_send_chat_action_t *dt);
+
+struct tebot_forward_message_t {
+	long long int chat_id;
+	long long int from_chat_id;
+	char disable_notification;
+	long long int message_id;
+};
+
+void tebot_method_forward_message ( tebot_handler_t *h, struct tebot_forward_message_t *dt);
+
+struct tebot_copy_message_t {
+	long long int chat_id;
+	long long int from_chat_id;
+	long long int message_id;
+	char *caption;
+	char *parse_mode;
+	char disable_notification;
+	int protect_content;
+	long long int reply_to_message_id;
+	char allow_sending_without_reply;
+	void *reply_markup;
+	int type_of_reply_markup;
+	int *layout;
+	int size_layout;
+};
+
+void tebot_method_copy_message ( tebot_handler_t *h, struct tebot_copy_message_t *dt);
 
 void tebot_free_update ( tebot_handler_t *h );
 
