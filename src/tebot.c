@@ -2989,8 +2989,8 @@ void tebot_set_webhook (tebot_handler_t *h, struct tebot_setup_webhook *sw) {
 
 	sleep (2);
 
-	char url[512];
-	snprintf (url, 512, "https://api.telegram.org/bot%s/setWebhook",
+	char url[1024];
+	snprintf (url, 1024, "https://api.telegram.org/bot%s/setWebhook",
 			h->token);
 
 	char post_data[1024];
@@ -3002,10 +3002,10 @@ void tebot_set_webhook (tebot_handler_t *h, struct tebot_setup_webhook *sw) {
 
 	struct curl_slist *chunk = NULL;
 
-	//chunk = curl_slist_append (chunk, "Content-Type: application/json");
-	//curl_easy_setopt (curl, CURLOPT_HTTPHEADER, chunk);
+	chunk = curl_slist_append (chunk, "Content-Type: application/json");
+	curl_easy_setopt (curl, CURLOPT_HTTPHEADER, chunk);
 
-	//curl_easy_setopt (curl, CURLOPT_POSTFIELDSIZE, (curl_off_t) strlen (post_data));
+	curl_easy_setopt (curl, CURLOPT_POSTFIELDSIZE, (curl_off_t) strlen (post_data));
 
 	printf ("perform\n");
 	CURLcode res = curl_easy_perform (curl);
