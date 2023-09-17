@@ -2999,20 +2999,15 @@ void tebot_set_webhook (tebot_handler_t *h, struct tebot_setup_webhook *sw) {
 	CURL *curl = curl_easy_init ( );
 	curl_easy_setopt (curl, CURLOPT_URL, url);
 	curl_easy_setopt (curl, CURLOPT_POSTFIELDS, post_data);
-	/*
-	 * Content-Type: application/json
-	 */
-	/*
-	 * data json
-	 */
 
 	struct curl_slist *chunk = NULL;
 
 	chunk = curl_slist_append (chunk, "Content-Type: application/json");
 	curl_easy_setopt (curl, CURLOPT_HTTPHEADER, chunk);
 
-	curl_easy_setopt (curl, CURLOPT_POSTFIELDSIZE, (curl_off_t) strlen (post_data));
+	//curl_easy_setopt (curl, CURLOPT_POSTFIELDSIZE, (curl_off_t) strlen (post_data));
 
+	printf ("perform\n");
 	CURLcode res = curl_easy_perform (curl);
 	if (res != CURLE_OK) {
 		fprintf (stderr, "curl_easy_perform() failed: %s\n", 
