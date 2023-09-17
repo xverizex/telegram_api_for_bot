@@ -2990,8 +2990,9 @@ void tebot_set_webhook (tebot_handler_t *h, struct tebot_setup_webhook *sw) {
 	sleep (2);
 
 	char url[1024];
-	snprintf (url, 1024, "https://api.telegram.org/bot%s/setWebhook",
-			h->token);
+	snprintf (url, 1024, "https://api.telegram.org/bot%s/setWebhook?url=%s",
+			h->token,
+			sw->route);
 
 	char post_data[1024];
 	snprintf (post_data, 1024, "{\"url\":\"%s\"}", sw->route);
