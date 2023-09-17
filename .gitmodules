@@ -1,0 +1,3 @@
+[submodule "libcreqhttp"]
+	path = libcreqhttp
+	url = git@github.com:xverizex/libcreqhttp.git

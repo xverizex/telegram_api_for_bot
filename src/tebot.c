@@ -2959,3 +2959,22 @@ tebot_message_entity_t **tebot_init_message_entity ( const int size ) {
 
 	return m;
 }
+
+#include <creqhttp.h>
+
+void tebot_set_webhook (tebot_handler_t *h, struct tebot_setup_webhook *sw) {
+	creqhttp_params args = {
+		.is_ssl = sw->is_ssl,
+		.port = sw->port,
+		.cb_handle = sw->msg_handle
+	};
+
+	creqhttp *cq = creqhttp_init (&args);
+	int ret = creqhttp_init_connection (cq);
+	if (ret == -1) {
+		fprintf (stderr, "creqhttp_init_connection error exit: %d\n", ret);
+		exit (EXIT_FAILURE);
+	}
+
+	h->cq = cq;
+}

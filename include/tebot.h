@@ -29,6 +29,9 @@ extern "C" {
 #define URL_API                       "https://api.telegram.org"
 #define URL_API_GET_FILE              "https://api.telegram.org/file"
 
+struct _creqhttp_epoll_event;
+typedef struct _creqhttp_epoll_event creqhttp_epoll_event;
+
 typedef struct tebot_user {
 	long long int id;
 	char is_bot;
@@ -569,6 +572,9 @@ typedef struct tebot_result_updated {
 	int size;
 } tebot_result_updated_t;
 
+struct _creqhttp;
+typedef struct _creqhttp creqhttp;
+
 typedef struct tebot_handler {
 	CURL *curl;
 	int show_debug;
@@ -580,6 +586,7 @@ typedef struct tebot_handler {
 	tebot_result_updated_t *res;
 	void **for_free;
 	int size_for_free;
+	creqhttp *cq;
 } tebot_handler_t;
 
 
@@ -903,6 +910,15 @@ void tebot_free_update ( tebot_handler_t *h );
 tebot_inline_keyboard_markup_t *tebot_init_inline_keyboard_markup ( const int size );
 tebot_reply_keyboard_markup_t *tebot_init_reply_keyboard_markup ( const int size );
 tebot_message_entity_t **tebot_init_message_entity ( const int size );
+
+
+struct tebot_setup_webhook {
+	unsigned short port;
+	int is_ssl;
+	void (*msg_handle) (creqhttp_epoll_event *);
+};
+
+void tebot_set_webhook (tebot_handler_t *h, struct tebot_setup_webhook *sw);
 
 #ifdef __cplusplus
 }
