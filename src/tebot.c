@@ -23,6 +23,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <json-c/json.h>
+#include <pthread.h>
 #include "tebot.h"
 
 #define LOG_LEVEL_CRITICAL_STRING          "[CRITICAL]: "
@@ -2962,6 +2963,12 @@ tebot_message_entity_t **tebot_init_message_entity ( const int size ) {
 
 #include <creqhttp.h>
 
+static void *webhook_accept_connections (void *_data) {
+	creqhttp *cq = (creqhttp *) _data;
+
+	creqhttp_accept_connections (cq);
+}
+
 void tebot_set_webhook (tebot_handler_t *h, struct tebot_setup_webhook *sw) {
 	creqhttp_params args = {
 		.is_ssl = sw->is_ssl,
@@ -2977,4 +2984,40 @@ void tebot_set_webhook (tebot_handler_t *h, struct tebot_setup_webhook *sw) {
 	}
 
 	h->cq = cq;
+	pthread_t t1;
+	pthread_create (&t1, NULL, webhook_accept_connections, (void *) h);
+
+	sleep (2);
+
+	char url[512];
+	snprintf (url, 512, "https://api.telegram.org/bot%s/setWebhook",
+			h->token);
+
+	char post_data[1024];
+	snprintf (post_data, 1024, "{\"url\":\"%s\"}", sw->route);
+
+	CURL *curl = curl_easy_init ( );
+	curl_easy_setopt (curl, CURLOPT_URL, url);
+	curl_easy_setopt (curl, CURLOPT_POSTFIELDS, post_data);
+	/*
+	 * Content-Type: application/json
+	 */
+	/*
+	 * data json
+	 */
+
+	struct curl_slist *chunk = NULL;
+
+	chunk = curl_slist_append (chunk, "Content-Type: application/json");
+	curl_easy_setopt (curl, CURLOPT_HTTPHEADER, chunk);
+
+	curl_easy_setopt (curl, CURLOPT_POSTFIELDSIZE, (curl_off_t) strlen (post_data));
+
+	CURLcode res = curl_easy_perform (curl);
+	if (res != CURLE_OK) {
+		fprintf (stderr, "curl_easy_perform() failed: %s\n", 
+				curl_easy_strerror (res));
+	}
+
+	curl_easy_cleanup (curl);
 }

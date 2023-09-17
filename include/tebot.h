@@ -916,6 +916,7 @@ struct tebot_setup_webhook {
 	unsigned short port;
 	int is_ssl;
 	void (*msg_handle) (creqhttp_epoll_event *);
+	char *route;
 };
 
 void tebot_set_webhook (tebot_handler_t *h, struct tebot_setup_webhook *sw);
