@@ -3024,13 +3024,13 @@ void tebot_set_webhook (tebot_handler_t *h, struct tebot_setup_webhook *sw) {
 	curl_easy_setopt (curl, CURLOPT_POSTFIELDS, post_data);
 	curl_easy_setopt (curl, CURLOPT_VERBOSE, 1L);
 
-	struct curl_slist *chunk = NULL;
+	chunk = NULL;
 
 	chunk = curl_slist_append (chunk, "Content-Type: application/json");
 	curl_easy_setopt (curl, CURLOPT_HTTPHEADER, chunk);
 
 	printf ("perform\n");
-	CURLcode res = curl_easy_perform (curl);
+	res = curl_easy_perform (curl);
 	if (res != CURLE_OK) {
 		fprintf (stderr, "curl_easy_perform() failed: %s\n", 
 				curl_easy_strerror (res));
