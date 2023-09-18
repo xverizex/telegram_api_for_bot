@@ -2987,7 +2987,7 @@ void tebot_set_webhook (tebot_handler_t *h, struct tebot_setup_webhook *sw) {
 
 	h->cq = cq;
 	pthread_t t1;
-	pthread_create (&t1, NULL, webhook_accept_connections, (void *) h);
+	pthread_create (&t1, NULL, webhook_accept_connections, (void *) cq);
 
 	sleep (2);
 
