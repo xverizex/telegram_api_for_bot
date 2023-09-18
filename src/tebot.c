@@ -2973,7 +2973,9 @@ void tebot_set_webhook (tebot_handler_t *h, struct tebot_setup_webhook *sw) {
 	creqhttp_params args = {
 		.is_ssl = sw->is_ssl,
 		.port = sw->port,
-		.cb_handle = sw->msg_handle
+		.cb_handle = sw->msg_handle,
+		.cert_file = sw->cert_file,
+		.private_key_file = sw->private_key_file
 	};
 
 	creqhttp *cq = creqhttp_init (&args);

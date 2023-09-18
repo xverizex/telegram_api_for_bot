@@ -917,6 +917,8 @@ struct tebot_setup_webhook {
 	int is_ssl;
 	void (*msg_handle) (creqhttp_epoll_event *);
 	char *route;
+	char *cert_file;
+	char *private_key_file;
 };
 
 void tebot_set_webhook (tebot_handler_t *h, struct tebot_setup_webhook *sw);
