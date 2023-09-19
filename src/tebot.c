@@ -431,7 +431,7 @@ static int parse_data_webhook ( tebot_handler_t *h, char *data, struct data_of_t
 	if ( !root ) return -1;
 
 	for ( int i = 0; i < size; i++ ) {
-		parse_current_object ( h, json_result, dot, i );
+		parse_current_object ( h, root, dot, i );
 	}
 
 	json_object_put ( root );
