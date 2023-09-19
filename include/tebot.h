@@ -922,6 +922,7 @@ struct tebot_setup_webhook {
 };
 
 void tebot_set_webhook (tebot_handler_t *h, struct tebot_setup_webhook *sw);
+tebot_result_updated_t *tebot_get_data_from_webhook (tebot_handler_t *h, char *post_data);
 
 #ifdef __cplusplus
 }

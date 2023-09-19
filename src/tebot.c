@@ -2049,6 +2049,70 @@ tebot_result_updated_t *tebot_method_get_updates ( tebot_handler_t *h, const lon
 	return t;
 }
 
+tebot_result_updated_t *tebot_get_data_from_webhook (tebot_handler_t *h, char *post_data) {
+
+	int limit = 1;
+
+	h->size_for_free = 0;
+	h->for_free = calloc ( 0, sizeof ( void * ) );
+
+	tebot_result_updated_t *t = ( tebot_result_updated_t * ) calloc ( 1, sizeof ( tebot_result_updated_t ) );
+	h->res = t;
+
+	t->update = ( tebot_update_t ** ) calloc ( limit, sizeof ( tebot_update_t * ) );
+
+	char *data = post_data;
+
+	for ( int i = 0; i < limit; i++ ) {
+		t->update[i] = calloc ( 1, sizeof ( tebot_update_t ) );
+		if ( !t->update[i] ) {
+			log_time ( LOG_LEVEL_CRITICAL, h->log_file, h->show_debug, "failed to calloc update.\n" );
+			return NULL;
+		}
+
+		void **temp = realloc ( h->for_free, sizeof ( void * ) * h->size_for_free + 1 );
+		if ( temp ) {
+			h->for_free = temp;
+			h->for_free[h->size_for_free] = t->update[i];
+			h->size_for_free++;
+		}
+
+		struct data_of_types dot[] = {
+			{ "update_id", (void **) &t->update[i]->update_id },
+			{ "message", (void **) &t->update[i]->message, sizeof ( tebot_message_t ), handler_message },
+			{ "edited_message", (void **) &t->update[i]->edited_message, sizeof ( tebot_message_t ), handler_message },
+			{ "channel_post", (void **) &t->update[i]->channel_post, sizeof ( tebot_message_t ), handler_message },
+			{ "edited_channel_post", (void **) &t->update[i]->edited_channel_post, sizeof ( tebot_message_t ), handler_message },
+			{ "inline_query", (void **) &t->update[i]->inline_query, sizeof ( tebot_inline_query_t ), handler_inline_query },
+			{ "chosen_inline_result", (void **) &t->update[i]->chosen_inline_result, sizeof ( tebot_chosen_inline_result_t ),
+				handler_chosen_inline_result },
+			{ "callback_query", (void **) &t->update[i]->callback_query, sizeof ( tebot_callback_query_t ), 
+				handler_callback_query },
+			{ "shipping_query", (void **) &t->update[i]->shipping_query, sizeof ( tebot_shipping_query_t ), 
+				handler_shipping_query },
+			{ "pre_checkout_query", (void **) &t->update[i]->pre_checkout_query, sizeof ( tebot_pre_checkout_query_t ),
+				handler_pre_checkout_query },
+			{ "poll", (void **) &t->update[i]->poll, sizeof ( tebot_poll_t ), handler_poll },
+			{ "poll_answer", (void **) &t->update[i]->poll_answer, sizeof ( tebot_poll_answer_t ), handler_poll_answer },
+			{ "my_chat_member", (void **) &t->update[i]->my_chat_member, sizeof ( tebot_chat_member_updated_t ), 
+				handler_chat_member_updated },
+			{ "chat_member", (void **) &t->update[i]->chat_member, sizeof ( tebot_chat_member_updated_t ), 
+				handler_chat_member_updated }
+		};
+
+		const int size = sizeof ( dot ) / sizeof ( struct data_of_types );
+
+		int ret = parse_data ( h, data, dot, size, i );
+		if ( ret == -1 ) {
+			log_time ( LOG_LEVEL_NOTICE, h->log_file, h->show_debug, "failed to parse data: %s\n", data );
+		}
+		t->size++;
+		if ( ret == 1 ) break;
+	}
+
+	return t;
+}
+
 static void get_inline_keyboard_markup_json_value ( 
 		struct mimes *mimes, 
 		const int index, 
