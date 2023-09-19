@@ -2126,6 +2126,8 @@ tebot_result_updated_t *tebot_get_data_from_webhook (tebot_handler_t *h, char *p
 		printf ("ret parse data: %d\n", ret);
 		if ( ret == -1 ) {
 			log_time ( LOG_LEVEL_NOTICE, h->log_file, h->show_debug, "failed to parse data: %s\n", data );
+			tebot_free_update (h);
+			return NULL;
 		}
 		t->size++;
 		if ( ret == 1 ) break;
