@@ -2122,7 +2122,7 @@ tebot_result_updated_t *tebot_get_data_from_webhook (tebot_handler_t *h, char *p
 
 		const int size = sizeof ( dot ) / sizeof ( struct data_of_types );
 
-		int ret = parse_data ( h, data, dot, size, i );
+		int ret = parse_data_webhook ( h, data, dot, size, i );
 		printf ("ret parse data: %d\n", ret);
 		if ( ret == -1 ) {
 			log_time ( LOG_LEVEL_NOTICE, h->log_file, h->show_debug, "failed to parse data: %s\n", data );
