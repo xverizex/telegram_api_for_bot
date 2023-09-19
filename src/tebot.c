@@ -422,6 +422,26 @@ parse_data_error:
 	return -1;
 }
 
+static int parse_data_webhook ( tebot_handler_t *h, char *data, struct data_of_types dot[], const int size, const int index_of_array ) {
+
+	json_object *root = NULL;
+	json_object *json_result = NULL;
+
+	root = json_tokener_parse ( data );
+	if ( !root ) return -1;
+
+	for ( int i = 0; i < size; i++ ) {
+		parse_current_object ( h, json_result, dot, i );
+	}
+
+	json_object_put ( root );
+
+	return 0;
+parse_data_error:
+	if ( root ) json_object_put ( root );
+	return -1;
+}
+
 tebot_user_t *tebot_method_get_me ( tebot_handler_t *h ) {
 
 	char *data = tebot_request_get ( h, "getMe", NULL, 0 );
