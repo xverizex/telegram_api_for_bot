@@ -3052,11 +3052,7 @@ tebot_message_entity_t **tebot_init_message_entity ( const int size ) {
 static void *webhook_accept_connections (void *_data) {
 	creqhttp *cq = (creqhttp *) _data;
 
-	printf ("accept connection\n");
-
 	creqhttp_accept_connections (cq);
-
-	printf ("exit accept connection\n");
 }
 
 static size_t prevent_output (void *buffer, size_t size, size_t nmemb, void *userp) {
@@ -3064,7 +3060,6 @@ static size_t prevent_output (void *buffer, size_t size, size_t nmemb, void *use
 }
 
 void tebot_set_webhook (tebot_handler_t *h, struct tebot_setup_webhook *sw) {
-	printf ("set webhook\n");
 	creqhttp_params args = {
 		.is_ssl = sw->is_ssl,
 		.port = sw->port,
@@ -3096,7 +3091,7 @@ void tebot_set_webhook (tebot_handler_t *h, struct tebot_setup_webhook *sw) {
 	CURL *curl = curl_easy_init ( );
 	curl_easy_setopt (curl, CURLOPT_URL, url);
 	curl_easy_setopt (curl, CURLOPT_POSTFIELDS, post_data);
-	//curl_easy_setopt (curl, CURLOPT_WRITEFUNCTION, prevent_output);
+	curl_easy_setopt (curl, CURLOPT_WRITEFUNCTION, prevent_output);
 
 	struct curl_slist *chunk = NULL;
 
@@ -3104,7 +3099,6 @@ void tebot_set_webhook (tebot_handler_t *h, struct tebot_setup_webhook *sw) {
 	curl_easy_setopt (curl, CURLOPT_HTTPHEADER, chunk);
 
 	CURLcode res = curl_easy_perform (curl);
-	printf ("ret code curl_easy_perform: %d\n", res);
 	if (res != CURLE_OK) {
 		fprintf (stderr, "curl_easy_perform() failed: %s\n", 
 				curl_easy_strerror (res));
@@ -3116,8 +3110,7 @@ void tebot_set_webhook (tebot_handler_t *h, struct tebot_setup_webhook *sw) {
 	curl = curl_easy_init ( );
 	curl_easy_setopt (curl, CURLOPT_URL, url);
 	curl_easy_setopt (curl, CURLOPT_POSTFIELDS, post_data);
-	printf (":%s\n", post_data);
-	//curl_easy_setopt (curl, CURLOPT_WRITEFUNCTION, prevent_output);
+	curl_easy_setopt (curl, CURLOPT_WRITEFUNCTION, prevent_output);
 
 	chunk = NULL;
 
@@ -3125,7 +3118,6 @@ void tebot_set_webhook (tebot_handler_t *h, struct tebot_setup_webhook *sw) {
 	curl_easy_setopt (curl, CURLOPT_HTTPHEADER, chunk);
 
 	res = curl_easy_perform (curl);
-	printf ("ret code curl_easy_perform: %d\n", res);
 	if (res != CURLE_OK) {
 		fprintf (stderr, "curl_easy_perform() failed: %s\n", 
 				curl_easy_strerror (res));
