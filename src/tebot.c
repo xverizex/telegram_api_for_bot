@@ -3104,6 +3104,7 @@ void tebot_set_webhook (tebot_handler_t *h, struct tebot_setup_webhook *sw) {
 	curl_easy_setopt (curl, CURLOPT_HTTPHEADER, chunk);
 
 	CURLcode res = curl_easy_perform (curl);
+	printf ("ret code curl_easy_perform: %d\n", res);
 	if (res != CURLE_OK) {
 		fprintf (stderr, "curl_easy_perform() failed: %s\n", 
 				curl_easy_strerror (res));
@@ -3123,6 +3124,7 @@ void tebot_set_webhook (tebot_handler_t *h, struct tebot_setup_webhook *sw) {
 	curl_easy_setopt (curl, CURLOPT_HTTPHEADER, chunk);
 
 	res = curl_easy_perform (curl);
+	printf ("ret code curl_easy_perform: %d\n", res);
 	if (res != CURLE_OK) {
 		fprintf (stderr, "curl_easy_perform() failed: %s\n", 
 				curl_easy_strerror (res));
