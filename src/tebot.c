@@ -3053,6 +3053,8 @@ static void *webhook_accept_connections (void *_data) {
 	creqhttp *cq = (creqhttp *) _data;
 
 	creqhttp_accept_connections (cq);
+
+	printf ("exit accept connection\n");
 }
 
 static size_t prevent_output (void *buffer, size_t size, size_t nmemb, void *userp) {
@@ -3091,7 +3093,7 @@ void tebot_set_webhook (tebot_handler_t *h, struct tebot_setup_webhook *sw) {
 	CURL *curl = curl_easy_init ( );
 	curl_easy_setopt (curl, CURLOPT_URL, url);
 	curl_easy_setopt (curl, CURLOPT_POSTFIELDS, post_data);
-	curl_easy_setopt (curl, CURLOPT_WRITEFUNCTION, prevent_output);
+	//curl_easy_setopt (curl, CURLOPT_WRITEFUNCTION, prevent_output);
 
 	struct curl_slist *chunk = NULL;
 
@@ -3110,7 +3112,7 @@ void tebot_set_webhook (tebot_handler_t *h, struct tebot_setup_webhook *sw) {
 	curl = curl_easy_init ( );
 	curl_easy_setopt (curl, CURLOPT_URL, url);
 	curl_easy_setopt (curl, CURLOPT_POSTFIELDS, post_data);
-	curl_easy_setopt (curl, CURLOPT_WRITEFUNCTION, prevent_output);
+	//curl_easy_setopt (curl, CURLOPT_WRITEFUNCTION, prevent_output);
 
 	chunk = NULL;
 
