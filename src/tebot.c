@@ -3052,6 +3052,8 @@ tebot_message_entity_t **tebot_init_message_entity ( const int size ) {
 static void *webhook_accept_connections (void *_data) {
 	creqhttp *cq = (creqhttp *) _data;
 
+	printf ("accept connection\n");
+
 	creqhttp_accept_connections (cq);
 
 	printf ("exit accept connection\n");
@@ -3062,6 +3064,7 @@ static size_t prevent_output (void *buffer, size_t size, size_t nmemb, void *use
 }
 
 void tebot_set_webhook (tebot_handler_t *h, struct tebot_setup_webhook *sw) {
+	printf ("set webhook\n");
 	creqhttp_params args = {
 		.is_ssl = sw->is_ssl,
 		.port = sw->port,
