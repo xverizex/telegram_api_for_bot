@@ -3116,6 +3116,7 @@ void tebot_set_webhook (tebot_handler_t *h, struct tebot_setup_webhook *sw) {
 	curl = curl_easy_init ( );
 	curl_easy_setopt (curl, CURLOPT_URL, url);
 	curl_easy_setopt (curl, CURLOPT_POSTFIELDS, post_data);
+	printf (":%s\n", post_data);
 	//curl_easy_setopt (curl, CURLOPT_WRITEFUNCTION, prevent_output);
 
 	chunk = NULL;
