@@ -1,11 +1,11 @@
 # simple telegram api bot in C.
 
-зависимости:
+dependency:
 * libjson-c-dev
 * curl-openssl-dev
 * libcreqhttp - my library http
 
-поддерживаемые функции:
+available functions:
 * getMe
 * getFile
 * getUpdates
@@ -23,17 +23,16 @@
 * sendChatAction
 * setWebhook
 
-# Как клонировать?
+# How to clone?
 
 ```
 git clone --recursive https://github.com/xverizex/telegram_api_for_bot
 ```
+If parameter is not used, then write it as 0 or NULL.
 
-Если параметр не нужно использовать в функции, то нужно писать `0` или `NULL`, чтобы этот параметр не учитывался в отправке данных. Чтобы узнать какие есть имена полей у структуры, вы можете посмотреть заголовок у библиотеки, либо же в документации на официальной странице telegram bot api. Все поля имеют те же названия, что и в документации. если в документации прописано `Integer` или другой, но целое число, то в моей библиотеки они все подразумеваются как `long long int`. Если в документации прописано `Float`, то в моей библиотеке подразумевается `double`. 
+We introduced example with get_updates, if you want to use webhook then see it on https://github.com/xverizex/my_telegram_bot_example:
 
-Теперь все параметры в функции бота передаются через структуры.
-
-пример приведён с get updates. Если хотите посмотреть с webhook, то смотрите проект https://github.com/xverizex/my_telegram_bot_example:
+## Example echo
 ```
 #include <stdio.h>
 #include <unistd.h>
@@ -76,7 +75,7 @@ int main ( int argc, char **argv ) {
 ```
 
 
-пример как загрузить боту файл музыки от пользователя.
+## Example that explain how to upload the music file to bot.
 ```
 #include <stdio.h>
 #include <unistd.h>
@@ -121,5 +120,111 @@ int main ( int argc, char **argv ) {
 		sleep ( 1 );
 	}
 
+}
+```
+
+## Example with webhook
+```
+#include <stdio.h>
+#include <unistd.h>
+#include <tebot.h>
+#include <creqhttp.h>
+#include "token.h"
+
+#define IS_DOWNLOADING_FILE                0
+
+static tebot_handler_t *h_crypto;
+
+static void bot_crypto_handle_msg (creqhttp_epoll_event *v, tebot_result_updated_t *t) {
+	if (t->update[0]->message) {
+		if (t->update[0]->message->text) {
+			printf ("%s: %s\n",
+					t->update[0]->message->from->username,
+					t->update[0]->message->text
+			       );
+
+			struct tebot_send_message_t m;
+			memset (&m, 0, sizeof (struct tebot_send_message_t));
+
+			m.chat_id = t->update[0]->message->from->id;
+			m.text = t->update[0]->message->text;
+
+			tebot_method_send_message (h_crypto, &m);
+		} 
+	}
+
+	v->is_disconnect = 1;
+
+	char *ans = "HTTP/1.1 200 OK\r\n\r\n";
+	memcpy (v->data.ans_data, ans, strlen (ans) + 1);
+	v->data.ans_len = strlen (ans);
+	v->data.is_answer = 1;
+}
+
+static void bot_crypto_handle_document (creqhttp_epoll_event *v, tebot_result_updated_t *t) {
+
+	v->flags[IS_DOWNLOADING_FILE] = 0;
+
+	if (t->update[0]->message->document) {
+		printf ("%s: %s\n",
+				t->update[0]->message->from->username,
+				t->update[0]->message->document->file_name
+		       );
+	}
+
+	if (t->update[0]->message->document) {
+		char *file_id = t->update[0]->message->document->file_id;
+		char *outfile = t->update[0]->message->document->file_name;
+
+		tebot_method_get_file (h_crypto, file_id, outfile);
+	}
+
+	v->is_disconnect = 1;
+
+	char *ans = "HTTP/1.1 200 OK\r\n\r\n";
+	memcpy (v->data.ans_data, ans, strlen (ans) + 1);
+	v->data.ans_len = strlen (ans);
+	v->data.is_answer = 1;
+}
+
+static void bot_crypto_input_handle (creqhttp_epoll_event *v) {
+       	http_req *htr = creqhttp_parse_request (v->data.data, v->data.len);
+
+	if (htr) {
+		tebot_result_updated_t *t = tebot_get_data_from_webhook (h_crypto, htr->post_data);
+		if (!t) {
+			v->flags[IS_DOWNLOADING_FILE] = 1;
+			v->is_disconnect = 0;
+			return;
+		}
+
+		bot_crypto_handle_msg (v, t);
+
+	} else if (v->flags[IS_DOWNLOADING_FILE]) {
+
+		tebot_result_updated_t *t = tebot_get_data_from_webhook (h_crypto, v->data.data);
+
+		bot_crypto_handle_document (v, t);
+	}
+}
+
+int main (int argc, char **argv) {
+
+	struct tebot_setup_webhook setup_bot_crypto = {
+		.port = 8080,
+		.is_ssl = 1,
+		.msg_handle = bot_crypto_input_handle,
+		.route = "https://[your site]:8443/hook",
+		.cert_file = "lets_encrypt/fullchain.pem",
+		.private_key_file = "lets_encrypt/privkey.pem"
+	};
+
+	h_crypto = tebot_init (TOKEN, TEBOT_DEBUG_NOT_SHOW, NULL);
+
+	tebot_set_webhook (h_crypto, &setup_bot_crypto);
+
+	while (1) {
+		sleep (1);
+	}
 }
 ```
